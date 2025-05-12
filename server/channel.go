@@ -115,6 +115,10 @@ func (s *Server) channelMOH(ctx context.Context, reply string, req *proxy.Reques
 	s.sendError(reply, s.ari.Channel().MOH(req.Key, req.ChannelMOH.Music))
 }
 
+func (s *Server) channelMove(ctx context.Context, reply string, req *proxy.Request) {
+	s.sendError(reply, s.ari.Channel().Move(req.Key, req.ChannelMove.App, req.ChannelMove.AppArgs))
+}
+
 func (s *Server) channelMute(ctx context.Context, reply string, req *proxy.Request) {
 	s.sendError(reply, s.ari.Channel().Mute(req.Key, req.ChannelMute.Direction))
 }

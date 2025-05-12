@@ -123,6 +123,7 @@ type Request struct {
 	ChannelDial          *ChannelDial          `json:"channel_dial,omitempty"`
 	ChannelHangup        *ChannelHangup        `json:"channel_hangup,omitempty"`
 	ChannelMOH           *ChannelMOH           `json:"channel_moh,omitempty"`
+	ChannelMove          *ChannelMove          `json:"channel_move,omitempty"`
 	ChannelMute          *ChannelMute          `json:"channel_mute,omitempty"`
 	ChannelOriginate     *ChannelOriginate     `json:"channel_originate,omitempty"`
 	ChannelPlay          *ChannelPlay          `json:"channel_play,omitempty"`
@@ -261,6 +262,12 @@ type ChannelHangup struct {
 type ChannelMOH struct {
 	// Music is the music to play
 	Music string `json:"music"`
+}
+
+// ChannelMove is the request for moving channel to another stasis application
+type ChannelMove struct {
+	App     string `json:"app"`
+	AppArgs string `json:"appArgs"`
 }
 
 // ChannelMute is the request for muting or unmuting a channel

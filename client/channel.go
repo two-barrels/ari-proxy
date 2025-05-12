@@ -106,6 +106,17 @@ func (c *channel) Continue(key *ari.Key, context string, extension string, prior
 	})
 }
 
+func (c *channel) Move(key *ari.Key, app string, appArgs string) error {
+	return c.c.commandRequest(&proxy.Request{
+		Kind: "ChannelMove",
+		Key:  key,
+		ChannelMove: &proxy.ChannelMove{
+			App:     app,
+			AppArgs: appArgs,
+		},
+	})
+}
+
 func (c *channel) Busy(key *ari.Key) error {
 	return c.c.commandRequest(&proxy.Request{
 		Kind: "ChannelBusy",
