@@ -1,5 +1,20 @@
 # ARI proxy modernization handoff
 
+## Release candidate status — 2026-10-02 (supersedes historical status below)
+
+PR #1 is merged into permanent `v6`; existing `main` and v5 tags remain intact.
+ARI `v6.0.0-rc.1` is published at `05e769a972ff5b11bb6db96195135cfe52f6db75`.
+Proxy now requires that published tag, with no local replacement. Proxy Go CI
+builds without a sibling; contract CI reads source evidence from the ARI tag.
+Race tests, vet, all 109 operations/175 parameters, and standalone snapshots
+passed against this dependency. This commit prepares proxy `v6.0.0-rc.1`;
+after pushing its tag, run `go run ./tools/release-check --ari-version
+v6.0.0-rc.1 --proxy-version v6.0.0-rc.1` to verify the published pair.
+Do not retag immutable candidates. Candidate evaluation/phone-apps migration
+is next; stable release and fork binary/container publishing remain future work.
+Live Asterisk 20/23 and NATS/RabbitMQ checks remain deferred by the user; selected
+22.10.1 tests are accepted for this scope. The remaining audits below remain open.
+
 ## Goal and source of truth
 
 Modernize this proxy together with `../ari`. The first priority is lossless ARI event forwarding: the proxy previously dropped event information needed by ARI applications. The wider goal is support for every endpoint and option in the pinned Asterisk 23 REST API, while fixing correctness and performance problems.

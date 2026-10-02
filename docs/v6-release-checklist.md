@@ -1,5 +1,23 @@
 # Coordinated v6 release checklist
 
+## Current candidate status — 2026-10-02
+
+This section supersedes the historical preparation notes below. Both PR #1s
+are merged into permanent `v6` branches. Existing `main` and v5 tags are intact.
+ARI `v6.0.0-rc.1` is published; proxy requires it without replacements and is
+prepared for matching `v6.0.0-rc.1` publication. Local proxy race, vet, contract,
+and standalone snapshot gates pass with the published dependency. Normal proxy
+Go CI no longer checks out the sibling; contract CI pins its source audit to
+the ARI tag. Verify the final published pair with:
+
+```sh
+GOWORK=off go run ./tools/release-check --ari-version v6.0.0-rc.1 --proxy-version v6.0.0-rc.1
+```
+
+Candidate publication covers Go modules only. Stable v6, phone-apps migration,
+binary/container publication, and the remaining audits are future work.
+Additional live PBX and broker checks remain deferred as agreed.
+
 Status as of 2026-10-01: preparation in progress; release gates remain open.
 No tags or publishing actions are performed by the standalone checker.
 Both modernization checkouts now use local `codex/v6-modernization` branches,

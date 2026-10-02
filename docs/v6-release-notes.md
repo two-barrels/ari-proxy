@@ -1,6 +1,7 @@
-# ARI proxy v6 release notes — draft
+# ARI proxy v6.0.0-rc.1 release notes
 
-Module: `github.com/two-barrels/ari-proxy/v6`. No v6 tag has been published.
+Module: `github.com/two-barrels/ari-proxy/v6`. This is a prerelease Go module;
+stable v6 and binary/container publication remain future work.
 
 ## Changes
 
@@ -23,10 +24,10 @@ Module: `github.com/two-barrels/ari-proxy/v6`. No v6 tag has been published.
 ## Migration and release dependency
 
 Review [v6 migration](v6-migration.md) before updating imports. The public API
-uses ARI v6 types, requiring a proxy major-version migration. The development
-replacement `github.com/two-barrels/ari/v6 => ../ari` remains. It must be replaced
-with an approved published ARI v6 tag before proxy publication; the currently
-required pseudo-version is not a release candidate.
+uses ARI v6 types, requiring a proxy major-version migration. The proxy requires
+published `github.com/two-barrels/ari/v6 v6.0.0-rc.1`; no local replacement remains.
+Normal Go CI resolves that dependency without a sibling checkout. Contract CI
+checks out the same ARI tag solely to inspect source evidence.
 
 Existing v5 tags remain available. Phone-apps has not been migrated. The user
 reports no current consumers of the existing proxy fork.
@@ -47,8 +48,7 @@ context, timeout, throughput, and multi-node error audits remain open.
 
 ## Artifact publication
 
-Publish ARI v6 first, replace the proxy override with its tag, verify the exact
-published modules, and only then prepare the approved proxy v6 release. Legacy
+ARI v6.0.0-rc.1 was published first; proxy v6.0.0-rc.1 uses that exact tag. Legacy
 image/GoReleaser jobs are restricted to CyCore upstream because their tooling
 and registry targets require separate two-barrels preparation. Source CI does
 not establish binary/container artifact readiness.

@@ -34,7 +34,7 @@ require (
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
-	github.com/two-barrels/ari/v6 v6.0.0-20251024161400-681c62bc07e7
+	github.com/two-barrels/ari/v6 v6.0.0-rc.1
 	golang.org/x/term v0.45.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
 )
@@ -46,7 +46,3 @@ require (
 	github.com/sagikazarmark/locafero v0.12.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 )
-
-// Development-only: the required pseudo-version is not the release candidate.
-// Replace it with the approved two-barrels ARI v6 tag and remove this override before publication.
-replace github.com/two-barrels/ari/v6 => ../ari

@@ -5,11 +5,6 @@ on:
     branches: [main, master, v6, 'codex/**']
   pull_request:
   workflow_dispatch:
-    inputs:
-      ari_ref:
-        description: ARI branch or commit to test while the sibling replacement exists
-        default: codex/v6-modernization
-        type: string
 
 permissions:
   contents: read
@@ -33,21 +28,11 @@ jobs:
         with:
           path: ari-proxy
           persist-credentials: false
-      # Keep this fixed to the modernization branch, including for external PRs.
-      # Publish/push ARI first. After replacing ../ari with a tag, remove this step.
-      - uses: actions/checkout@v7
-        with:
-          repository: two-barrels/ari
-          ref: ${{ inputs.ari_ref || 'codex/v6-modernization' }}
-          path: ari
-          persist-credentials: false
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
           check-latest: true
-          cache-dependency-path: |
-            ari/go.sum
-            ari-proxy/go.sum
+          cache-dependency-path: ari-proxy/go.sum
       - name: Verify modules
         run: |
           go mod download

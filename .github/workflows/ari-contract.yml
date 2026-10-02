@@ -5,11 +5,6 @@ on:
     branches: [main, master, v6, 'codex/**']
   pull_request:
   workflow_dispatch:
-    inputs:
-      ari_ref:
-        description: ARI branch or commit to verify
-        default: codex/v6-modernization
-        type: string
 
 permissions:
   contents: read
@@ -32,7 +27,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           repository: two-barrels/ari
-          ref: ${{ inputs.ari_ref || 'codex/v6-modernization' }}
+          # Source evidence for the contract audit; builds resolve go.mod's tag.
+          ref: v6.0.0-rc.1
           path: ari
           persist-credentials: false
       - uses: actions/setup-go@v7
