@@ -71,6 +71,13 @@ the final consumer distribution check, not proof of PBX compatibility.
 
 ## Review and publication sequence
 
+The user selected separate permanent `v6` branches on 2026-10-02. Both branches
+start at their fork's current `main`; the modernization PRs now target `v6`.
+Keep `main` and existing v5 tags intact while phone-apps migrates. After
+validation, make `v6` the default branch; if the name `main` is desired, preserve
+old `main` as `v5` before renaming `v6`. Branch/default changes do not replace
+module-version tags. CI must include pushes to `v6`.
+
 Legacy proxy image/release jobs are restricted to the CyCoreSystems upstream
 repository because their Docker/GoReleaser configuration still uses CyCore
 publication targets and old tooling. Prepare and review two-barrels artifact
