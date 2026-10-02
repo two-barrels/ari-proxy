@@ -1,3 +1,5 @@
+<!-- Modified by two-barrels in 2026 for ARI v6 modernization. SPDX-License-Identifier: Apache-2.0 -->
+
 # ari-proxy
 [Go package documentation](https://pkg.go.dev/github.com/two-barrels/ari-proxy/v6)
 

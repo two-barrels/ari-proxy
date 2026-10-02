@@ -1,3 +1,5 @@
+<!-- Created by two-barrels in 2026 for ARI v6 modernization. SPDX-License-Identifier: Apache-2.0 -->
+
 # ARI proxy v6.0.0-rc.1 release notes
 
 Module: `github.com/two-barrels/ari-proxy/v6`. This is a prerelease Go module;

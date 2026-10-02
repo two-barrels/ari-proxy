@@ -1,3 +1,5 @@
+<!-- Created by two-barrels in 2026 for ARI v6 modernization. SPDX-License-Identifier: Apache-2.0 -->
+
 # Migrating ari-proxy to v6
 
 Status: release candidate, 2026-10-02. The current checkout declares

@@ -1,3 +1,6 @@
+// Created by two-barrels in 2026 for ARI v6 modernization.
+// SPDX-License-Identifier: Apache-2.0
+
 // release-check builds an external consumer from packaged snapshots or tags.
 package main
 
@@ -91,9 +94,11 @@ func snapshot(root, proxyDir, path, version, ariVersion string, env []string) er
 		}
 		// The repositories have no embedded assets; retain source and fixture inputs.
 		switch filepath.Ext(rel) {
-		case ".go", ".mod", ".sum", ".json", ".tmpl", ".csv":
+		case ".go", ".mod", ".sum", ".json", ".tmpl", ".csv", ".notice":
 		default:
-			return nil
+			if rel != "LICENSE" && rel != "NOTICE" {
+				return nil
+			}
 		}
 		data, err := os.ReadFile(name)
 		if err != nil {

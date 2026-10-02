@@ -1,3 +1,5 @@
+<!-- Created by two-barrels in 2026 for ARI v6 modernization. SPDX-License-Identifier: Apache-2.0 -->
+
 # Asterisk 22.10.1 live validation
 
 Date: 2026-09-28. Target: user-provided, non-disposable test PBX running Asterisk 22.10.1. Credentials and host details are intentionally omitted from this report.

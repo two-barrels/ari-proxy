@@ -1,3 +1,5 @@
+<!-- Created by two-barrels in 2026 for ARI v6 modernization. SPDX-License-Identifier: Apache-2.0 -->
+
 # ARI 23 coverage audit and upgrade plan
 
 Audit date: 2026-09-24. Baseline: [Asterisk 23 `rest-api/api-docs` at commit `97d55b3306ca4aa26c0136c67b79470ca4b2b785`](https://github.com/asterisk/asterisk/tree/97d55b3306ca4aa26c0136c67b79470ca4b2b785/rest-api/api-docs). The [endpoint inventory](ari-23-endpoint-inventory.csv) lists all 109 operations in the eleven resource specifications. The [parameter coverage](ari-23-parameter-coverage.csv) classifies all 175 non-path parameters and points to source files for currently mapped options. The [normalized specification manifest](ari-23-spec-manifest.json) records methods, paths, parameter metadata, response classes, and introduction versions from that exact commit.

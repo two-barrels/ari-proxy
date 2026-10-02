@@ -1,3 +1,5 @@
+<!-- Created by two-barrels in 2026 for ARI v6 modernization. SPDX-License-Identifier: Apache-2.0 -->
+
 # two-barrels fork and phone-apps inspection
 
 Inspection date: 2026-10-01. This was read-only for the forks and phone-apps;

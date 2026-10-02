@@ -1,0 +1,12 @@
+Created by two-barrels in 2026 for ARI v6 modernization.
+
+This fork is derived from CyCoreSystems/ari-proxy, licensed under Apache License
+2.0. Upstream copyright, license, patent, trademark and author notices are
+retained. Modified upstream files carry prominent two-barrels modification
+notices; new fork-authored files carry two-barrels creation notices.
+Generated files retain generator attribution in addition to these notices.
+go.sum has a companion .notice because checksum files do not support comments.
+These attribution notices do not modify the Apache License in LICENSE.
+
+Audit baseline: CyCoreSystems/ari-proxy 38a40c1e67de4a7cc036c0e595c161297325fbdd.
+Run go run ./tools/file-notices to check current additions/modifications.

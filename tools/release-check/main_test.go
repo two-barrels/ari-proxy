@@ -1,3 +1,6 @@
+// Created by two-barrels in 2026 for ARI v6 modernization.
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
@@ -12,7 +15,7 @@ import (
 func TestSnapshotPackagesSourcesWithoutSiblingReplacement(t *testing.T) {
 	root, proxy := t.TempDir(), t.TempDir()
 	mod := "module github.com/two-barrels/ari-proxy/v6\n\ngo 1.25.0\n\nrequire github.com/two-barrels/ari/v6 v6.0.0\nreplace github.com/two-barrels/ari/v6 => ../ari\n"
-	for name, data := range map[string]string{"go.mod": mod, "new.go": "package example\n", ".git/private.go": "secret", "credential.txt": "secret"} {
+	for name, data := range map[string]string{"go.mod": mod, "new.go": "package example\n", "LICENSE": "Apache License\n", "NOTICE": "two-barrels attribution\n", "go.sum.notice": "Checksum modification notice\n", ".git/private.go": "secret", "credential.txt": "secret"} {
 		path := filepath.Join(root, name)
 		if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
 			t.Fatal(err)
@@ -34,7 +37,11 @@ func TestSnapshotPackagesSourcesWithoutSiblingReplacement(t *testing.T) {
 	}
 	defer archive.Close()
 	foundSource, foundMod := false, false
+	legalFiles := map[string]bool{"LICENSE": false, "NOTICE": false, "go.sum.notice": false}
 	for _, file := range archive.File {
+		if _, ok := legalFiles[filepath.Base(file.Name)]; ok {
+			legalFiles[filepath.Base(file.Name)] = true
+		}
 		if strings.Contains(file.Name, "private") || strings.Contains(file.Name, "credential") {
 			t.Fatalf("unexpected file: %s", file.Name)
 		}
@@ -59,6 +66,11 @@ func TestSnapshotPackagesSourcesWithoutSiblingReplacement(t *testing.T) {
 	}
 	if !foundSource || !foundMod {
 		t.Fatal("missing source or module file")
+	}
+	for name, found := range legalFiles {
+		if !found {
+			t.Fatalf("missing license/attribution file in archive: %s", name)
+		}
 	}
 	original, err := os.ReadFile(filepath.Join(root, "go.mod"))
 	if err != nil {

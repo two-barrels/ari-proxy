@@ -1,3 +1,5 @@
+<!-- Created by two-barrels in 2026 for ARI v6 modernization. SPDX-License-Identifier: Apache-2.0 -->
+
 # Coordinated v6 release checklist
 
 ## Current candidate status — 2026-10-02
