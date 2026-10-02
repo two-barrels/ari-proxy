@@ -5,11 +5,18 @@ No tags or publishing actions are performed by the standalone checker.
 Both modernization checkouts now use local `codex/v6-modernization` branches,
 with two-barrels forks as `origin` and CyCoreSystems as `upstream`. Existing fork
 default branches and tags have not changed. The modernization work is still
-organized into local commits and unpushed; both module/import paths use their final two-barrels owner.
+organized into commits and pushed to origin/codex/v6-modernization; both module/import paths use their final two-barrels owner.
 The [two-barrels fork and phone-apps inspection](two-barrels-fork-inspection.md)
 records current fork refs, pinned consumers, dependency differences, and migration risks.
 
 ## Evidence and open gates
+
+Hosted checks passed: [ARI Go CI](https://github.com/two-barrels/ari/actions/runs/36975590152)
+at fe4592b, [proxy Go CI](https://github.com/two-barrels/ari-proxy/actions/runs/36975604921)
+and [contract/standalone CI](https://github.com/two-barrels/ari-proxy/actions/runs/36975604943)
+at 74764bd. Review PR submission is pending browser sign-in. Draft release notes
+are in [proxy notes](v6-release-notes.md) and the sibling
+[ARI notes](../../ari/docs/v6-release-notes.md). No tags have been created.
 
 | Gate | Evidence / remaining work |
 | --- | --- |

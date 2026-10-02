@@ -19,6 +19,13 @@ Start with `docs/ari-23-upgrade-plan.md`. `docs/ari-23-spec-manifest.json` is pi
 
 ## Next work
 
+Review preparation: modernization is pushed to origin/codex/v6-modernization
+at 74764bd; hosted Go and contract/standalone CI passed. This supersedes earlier
+unpushed/hosted-unverified notes. Draft release notes are in
+docs/v6-release-notes.md. Review PR submission is pending GitHub browser sign-in.
+The sibling replacement and artifact publishing configuration remain unresolved;
+do not tag the proxy until the approved ARI tag is required and externally tested.
+
 User scope decision (2026-10-01): existing Asterisk 22.10.1 live evidence is
 sufficient for current release scope. Further live PBX validation, including
 Asterisk 20/23, is deferred and is not a current release gate. NATS/RabbitMQ
