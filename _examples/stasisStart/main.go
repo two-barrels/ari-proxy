@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/client"
-	"github.com/CyCoreSystems/ari/v5"
-	"github.com/CyCoreSystems/ari/v5/client/native"
+	"github.com/two-barrels/ari-proxy/v6/client"
+	"github.com/two-barrels/ari/v6"
+	"github.com/two-barrels/ari/v6/client/native"
 
 	"github.com/inconshreveable/log15"
 )

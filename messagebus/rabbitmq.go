@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/proxy"
-	"github.com/CyCoreSystems/ari/v5"
-	"github.com/CyCoreSystems/ari/v5/rid"
+	"github.com/two-barrels/ari-proxy/v6/proxy"
+	"github.com/two-barrels/ari/v6"
+	"github.com/two-barrels/ari/v6/rid"
 	"github.com/inconshreveable/log15"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/rotisserie/eris"

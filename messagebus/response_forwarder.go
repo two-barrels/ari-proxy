@@ -3,7 +3,7 @@ package messagebus
 import (
 	"sync"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/proxy"
+	"github.com/two-barrels/ari-proxy/v6/proxy"
 )
 
 type responseForwarder struct {

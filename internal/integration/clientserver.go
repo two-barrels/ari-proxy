@@ -8,7 +8,7 @@ import (
 
 	"sync"
 
-	"github.com/CyCoreSystems/ari/v5"
+	"github.com/two-barrels/ari/v6"
 	"github.com/nats-io/nats.go"
 	"github.com/rotisserie/eris"
 )

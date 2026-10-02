@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/CyCoreSystems/ari/v5"
+	"github.com/two-barrels/ari/v6"
 )
 
 // AnnouncementInterval is the amount of time to wait between periodic service availability announcements

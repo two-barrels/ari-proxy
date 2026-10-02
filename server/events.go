@@ -1,6 +1,6 @@
 package server
 
-import "github.com/CyCoreSystems/ari/v5"
+import "github.com/two-barrels/ari/v6"
 
 func (s *Server) dialogsForEvent(e ari.Event) (ret []string) {
 	for _, k := range e.Keys() {
