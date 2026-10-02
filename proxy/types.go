@@ -350,12 +350,6 @@ type ChannelMOH struct {
 	Music string `json:"music"`
 }
 
-// ChannelMove is the request for moving channel to another stasis application
-type ChannelMove struct {
-	App     string `json:"app"`
-	AppArgs string `json:"appArgs"`
-}
-
 // ChannelMute is the request for muting or unmuting a channel
 type ChannelMute struct {
 	// Direction is the direction to mute
