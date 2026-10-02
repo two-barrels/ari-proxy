@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"github.com/inconshreveable/log15"
+	"golang.org/x/exp/slog"
 
 	"github.com/two-barrels/ari-proxy/v6/client"
 	"github.com/two-barrels/ari/v6"
@@ -17,8 +19,6 @@ var log = log15.New()
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
-	record.Logger = log
 
 	// connect
 	log.Info("Connecting to ARI")
@@ -53,6 +53,7 @@ func appStart(ctx context.Context) func(*ari.ChannelHandle, *ari.StasisStart) {
 		}
 
 		res, err := record.Record(ctx, h,
+			record.WithLogger(slog.New(slog.NewTextHandler(os.Stderr, nil))),
 			record.TerminateOn("any"),
 			record.IfExists("overwrite"),
 		).Result()
