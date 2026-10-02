@@ -2,17 +2,48 @@ name: ARI contract
 
 on:
   push:
+    branches: [main, master, 'codex/**']
   pull_request:
+  workflow_dispatch:
+    inputs:
+      ari_ref:
+        description: ARI branch or commit to verify
+        default: codex/v6-modernization
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  GOWORK: 'off'
+  GOTOOLCHAIN: local
 
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ari-proxy
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
         with:
-          go-version-file: go.mod
+          path: ari-proxy
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: two-barrels/ari
+          ref: ${{ inputs.ari_ref || 'codex/v6-modernization' }}
+          path: ari
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.26.8'
+          cache-dependency-path: |
+            ari/go.sum
+            ari-proxy/go.sum
       - name: Check classified routes and parameters
         run: go run ./tools/ari-contract
       - name: Test drift detection
         run: go test ./tools/ari-contract
+      - name: Build standalone snapshots and external consumer
+        run: go run ./tools/release-check

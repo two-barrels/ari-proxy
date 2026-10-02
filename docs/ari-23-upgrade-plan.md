@@ -49,4 +49,10 @@ The event copy benchmark exposed a proxy fanout cost proportional to dialog coun
 
 ## Completion criteria
 
+Scope decision (2026-10-01): the user accepts existing Asterisk 22.10.1 live
+validation for the current release scope. Additional live Asterisk 20/23
+validation is deferred and does not block this scope. NATS/RabbitMQ live tests
+are deferred for now. The original multi-version goal below remains future
+work; retain the pinned contract tests and disclose unverified live behavior.
+
 For each of the 109 operations, the inventory records an explicit implementation or a documented version-gated exception; all non-path parameters have native and proxy wire assertions; JSON response and error cases are tested; binary transfer has bounded memory behavior; event types are either typed or losslessly forwarded; and both libraries pass a common integration suite against selected Asterisk versions. The release gate also checks that a consumer can build each module outside the two-repository sibling layout.

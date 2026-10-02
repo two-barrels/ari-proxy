@@ -19,6 +19,36 @@ Start with `docs/ari-23-upgrade-plan.md`. `docs/ari-23-spec-manifest.json` is pi
 
 ## Next work
 
+User scope decision (2026-10-01): existing Asterisk 22.10.1 live evidence is
+sufficient for current release scope. Further live PBX validation, including
+Asterisk 20/23, is deferred and is not a current release gate. NATS/RabbitMQ
+live tests were also deferred for now; the earlier required-test wording below
+is superseded. Preserve local contract tests and unverified-version caveats.
+
+CI preparation (2026-10-01): Go workflows run module checks, vet,
+package/example builds, race suites on Go 1.25.x/1.26.8, and govulncheck on
+1.26.8. Contract CI also builds standalone snapshots. Both proxy workflows
+check out two-barrels/ari at codex/v6-modernization beside ari-proxy; push ARI
+first. Manual runs accept an ari_ref override. GOTOOLCHAIN=local prevents matrix
+compiler switching. Hosted runs remain unverified until branches are pushed.
+Legacy CyCore image/release jobs are restricted to the upstream repository;
+two-barrels publishing configuration is still a release gate. Remove sibling
+checkouts once the proxy requires an approved published ARI tag.
+
+Dependency refresh (2026-10-01): amqp091-go is 1.15.0, nats.go 1.53.0,
+compress 1.20.1, x/crypto 0.55.0, x/net 0.58.0, x/text 0.41.0, and
+testify 1.12.1. These supersede the fork dependency versions above. The Go
+minimum remains 1.25.0; the module recommends patched toolchain go1.26.8.
+Explicit GOTOOLCHAIN overrides bypass that recommendation. Live RabbitMQ
+and NATS validation is still required for the upgraded clients.
+Both repositories passed Go 1.26.8 race suites, Go 1.25.7 compatibility
+tests, the 109-operation/175-parameter checker, and standalone snapshot builds.
+govulncheck on Go 1.26.8 reported no ARI vulnerabilities and no reachable
+proxy vulnerabilities (three module-only proxy advisories remain).
+Those module-only reports concern unused x/crypto SSH (GO-2026-6354/6355)
+and OpenPGP (GO-2026-5932) packages; no affected package is imported by the
+scanned proxy roots. Reassess this if SSH or OpenPGP is introduced.
+
 Release preparation drafts are in `docs/v6-migration.md` and
 `docs/v6-release-checklist.md`. `go run ./tools/release-check` packages both
 working trees into a temporary module proxy and builds all packages plus an
@@ -32,7 +62,7 @@ and full bounded recording tests. Native and proxy hashes matched for a
 a native websocket connected-state race now fixed in `../ari`. Cleanup verified
 zero bridges and channels. See `docs/ari-22-live-validation.md`.
 
-1. Validate against live Asterisk 20/22/23, especially event fidelity, route variants and returned IDs, new options, binary recording, and version-gated behavior. Extend the shared Go version fixtures with observations from real servers. No live Asterisk 23 certification has been completed. Check Asterisk handler compatibility before calling a JSON-to-query change a bug; generated ARI handlers parse JSON-body fields for many POST/PUT operations.
+1. Deferred: live Asterisk 20/23 validation. Asterisk 22.10.1 is accepted for current scope; no live Asterisk 23 certification has been completed. Check Asterisk handler compatibility before changing JSON encoding; generated ARI handlers parse JSON-body fields for many POST/PUT operations.
 2. Extend response/error cases where live tests expose a gap; the pinned local wire contract is complete, but representative responses do not prove every server response shape.
 3. Benchmark and fix full event delivery under realistic NATS/RabbitMQ subscriber contention. Audit cancellation, binary download throughput, multi-node list partial failures, request context propagation, path/query escaping, and the 500 ms default request timeout.
 4. Review coordinated v6 migration notes and standalone builds. Both module paths are now /v6. Publish `ari/v6` first after gates pass, remove the local replace, and test against the tagged dependency before the proxy release. Do not publish these v6-facing API changes as another proxy v5 release.

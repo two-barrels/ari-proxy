@@ -53,9 +53,11 @@ The proxy now preserves raw JSON fields and unknown future event types across
 server/client event delivery. Applications should handle `ari.UnknownEvent` and
 exit when subscription channels close. Dialog clones have independent routing
 metadata but share nested event values, which must be treated as immutable.
-Application-wide subscriptions receive keyless events. End-to-end checks must
-still be performed with both NATS and RabbitMQ; live checks so far use an
-in-memory JSON transport substitute.
+Application-wide subscriptions receive keyless events. NATS/RabbitMQ live
+checks are deferred for now per the user; event transport checks so far use an
+in-memory JSON transport substitute. On 2026-10-01 the user accepted existing
+Asterisk 22.10.1 live validation for current release scope and deferred further
+live PBX checks. Asterisk 20/23 remain unverified against real servers.
 
 Requests for side-effecting explicit routes, endpoint REFER, and event claim
 need a key containing the application and target Asterisk node. This prevents

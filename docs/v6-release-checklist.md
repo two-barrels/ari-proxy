@@ -15,14 +15,14 @@ records current fork refs, pinned consumers, dependency differences, and migrati
 | --- | --- |
 | Pinned route/option contract | 109 operations, 175 parameters verified on native and proxy wires; checker passes. |
 | Repository regression tests | Both full race suites passed after the 2026-10-01 live-discovered websocket fix. Rerun on the exact release commits. |
-| Live Asterisk 22 | Selected read, bridge, external-media/event, and full bounded recording checks passed; not every operation. |
-| Live Asterisk 20 and 23 | Open. Verify selected version boundaries, ARI 23 event payloads, returned IDs, option behavior, and version-specific failures. |
-| Live NATS and RabbitMQ | Open. Validate event fidelity, discovery, concurrent shutdown, contention, and recording transfer/retry/cleanup. |
+| Live Asterisk 22 | Selected read, bridge, external-media/event, and full bounded recording checks passed; not every operation. User accepted 22.10.1 as sufficient live validation for current release scope on 2026-10-01. |
+| Live Asterisk 20 and 23 | Deferred by the user on 2026-10-01; not a current release gate. Local version fixtures and pinned Asterisk 23 contract tests remain; these versions are not live-certified. |
+| Live NATS and RabbitMQ | Deferred for now by the user on 2026-10-01. Broker behavior remains unverified after dependency updates. |
 | Remaining correctness/performance audit | Open: escaping, request context propagation, timeout policy, binary throughput, multi-node partial failures. |
 | Migration guides | Drafts exist in both repositories; confirm against reviewed release diffs and application upgrades. |
 | Standalone source builds | Packaged snapshots for final two-barrels/ari/v6 and two-barrels/ari-proxy/v6 passed on 2026-10-01 without workspace or replacements; rerun on final commits. |
 | Go minimum | Go 1.25.0 declared after retaining fork dependency upgrades. Both race suites and all examples passed on Go 1.25.7; race suites and standalone builds also passed with the host compiler. Rerun on final release commits. |
-| Release CI | Open: align the old ARI Go 1.21 workflow with the module minimum, and supply the proxy's sibling dependency while the development override exists. Final CI must use the published dependency. |
+| Release CI | Source workflows prepared: main/master/codex branch pushes and PRs, Go 1.25.x/1.26.8 race tests, vet, module verification/tidy, explicit examples, vulnerability scans, contract and standalone snapshots. Proxy jobs check out two-barrels/ari at codex/v6-modernization beside the proxy; push that ARI branch first. Manual runs accept an ARI ref. Hosted execution remains unverified until branches are pushed. Final CI must use the published dependency and remove the development checkout. |
 | Proxy major path | Complete: module declaration, source/test/example imports use proxy/v6. Both race suites and contract checker passed after conversion. |
 | Standalone published tags | Open: run tag mode after each real tag becomes available. |
 | Review and commits | Local commits organized by module/dependencies, event/bus fidelity, native APIs, concurrency fixes, proxy implementation, examples, and release tooling. Maintainer review remains open. |
@@ -63,6 +63,13 @@ requiring sibling repositories. It rejects replacement dependencies. This is
 the final consumer distribution check, not proof of PBX compatibility.
 
 ## Review and publication sequence
+
+Legacy proxy image/release jobs are restricted to the CyCoreSystems upstream
+repository because their Docker/GoReleaser configuration still uses CyCore
+publication targets and old tooling. Prepare and review two-barrels artifact
+publishing separately before enabling fork releases. The new source CI uses
+`go vet` in place of the obsolete golangci-lint action; a separately configured
+modern lint policy remains optional work.
 
 1. Review API/wire behavior and organize commits for contract/generation,
    native APIs/options/errors, proxy routing/events/recording, concurrency fixes,
