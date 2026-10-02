@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/messagebus"
-	"github.com/CyCoreSystems/ari/v5"
+	"github.com/two-barrels/ari-proxy/v6/messagebus"
+	"github.com/two-barrels/ari/v6"
 	"github.com/rotisserie/eris"
 )
 

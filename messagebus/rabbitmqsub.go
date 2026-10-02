@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/CyCoreSystems/ari/v5/rid"
+	"github.com/two-barrels/ari/v6/rid"
 	"github.com/rabbitmq/amqp091-go"
 )
 

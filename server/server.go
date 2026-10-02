@@ -5,13 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/messagebus"
-	"github.com/CyCoreSystems/ari-proxy/v5/proxy"
-	"github.com/CyCoreSystems/ari-proxy/v5/server/dialog"
-	"github.com/CyCoreSystems/ari/v5"
-	"github.com/CyCoreSystems/ari/v5/client/native"
+	"github.com/two-barrels/ari-proxy/v6/messagebus"
+	"github.com/two-barrels/ari-proxy/v6/proxy"
+	"github.com/two-barrels/ari-proxy/v6/server/dialog"
+	"github.com/two-barrels/ari/v6"
+	"github.com/two-barrels/ari/v6/client/native"
 	"github.com/nats-io/nats.go"
 	"github.com/rotisserie/eris"
 
@@ -45,6 +46,9 @@ type Server struct {
 	Log log15.Logger
 
 	mbus messagebus.Server
+
+	recordingFilesMu sync.Mutex
+	recordingFiles   map[string]*recordingFileSession
 }
 
 // New returns a new Server
@@ -122,6 +126,7 @@ func (s *Server) Ready() <-chan struct{} {
 
 // nolint: gocyclo
 func (s *Server) listen(ctx context.Context) error {
+	defer s.closeAllRecordingFiles()
 	s.Log.Debug("starting listener")
 
 	var wg closeGroup
@@ -277,15 +282,26 @@ func (s *Server) runEventHandler(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case e := <-sub.Events():
+		case e, ok := <-sub.Events():
+			if !ok || e == nil {
+				return
+			}
 			s.Log.Debug("event received", "kind", e.GetType())
 
 			// Publish event to canonical destination
 			s.publishEvent(fmt.Sprintf("%sevent.%s.%s", s.MBPrefix, s.Application, s.AsteriskID), e)
 
 			// Publish event to any associated dialogs
-			for _, d := range s.dialogsForEvent(e) {
-				de := e
+			dialogs := s.dialogsForEvent(e)
+			if len(dialogs) == 0 {
+				continue
+			}
+			for _, d := range dialogs {
+				de, err := ari.CloneEvent(e)
+				if err != nil {
+					s.Log.Error("failed to copy event for dialog routing", "error", err)
+					continue
+				}
 				de.SetDialog(d)
 				s.publishEvent(fmt.Sprintf("%sdialogevent.%s", s.MBPrefix, d), de)
 			}
@@ -341,6 +357,8 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 	switch req.Kind {
 	case "ApplicationData":
 		f = s.applicationData
+	case "ApplicationFilterEvents":
+		f = s.applicationFilterEvents
 	case "ApplicationGet":
 		f = s.applicationGet
 	case "ApplicationList":
@@ -381,14 +399,28 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 		f = s.asteriskModuleUnload
 	case "AsteriskInfo":
 		f = s.asteriskInfo
+	case "AsteriskPing":
+		f = s.asteriskPing
 	case "AsteriskVariableGet":
 		f = s.asteriskVariableGet
 	case "AsteriskVariableSet":
 		f = s.asteriskVariableSet
 	case "BridgeAddChannel":
 		f = s.bridgeAddChannel
+	case "BridgeVariableGet":
+		f = s.bridgeVariableGet
+	case "BridgeVariableSet":
+		f = s.bridgeVariableSet
+	case "BridgeVariablesGet":
+		f = s.bridgeVariablesGet
+	case "BridgeVariablesSet":
+		f = s.bridgeVariablesSet
 	case "BridgeCreate":
 		f = s.bridgeCreate
+	case "BridgeCreateWithoutID":
+		f = s.bridgeCreateWithoutID
+	case "BridgeCreateOnCollection":
+		f = s.bridgeCreateWithoutID
 	case "BridgeStageCreate":
 		f = s.bridgeStageCreate
 	case "BridgeData":
@@ -405,6 +437,10 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 		f = s.bridgeStopMOH
 	case "BridgePlay":
 		f = s.bridgePlay
+	case "BridgePlayWithoutID":
+		f = s.bridgePlayWithoutID
+	case "BridgePlayOnCollection":
+		f = s.bridgePlayWithoutID
 	case "BridgeStagePlay":
 		f = s.bridgeStagePlay
 	case "BridgeRecord":
@@ -431,6 +467,8 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 		f = s.channelCreate
 	case "ChannelContinue":
 		f = s.channelContinue
+	case "ChannelMove":
+		f = s.channelMove
 	case "ChannelData":
 		f = s.channelData
 	case "ChannelDial":
@@ -445,16 +483,20 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 		f = s.channelList
 	case "ChannelMOH":
 		f = s.channelMOH
-	case "ChannelMove":
-		f = s.channelMove
 	case "ChannelMute":
 		f = s.channelMute
 	case "ChannelOriginate":
 		f = s.channelOriginate
+	case "ChannelOriginateWithID":
+		f = s.channelOriginateWithID
 	case "ChannelStageOriginate":
 		f = s.channelStageOriginate
 	case "ChannelPlay":
 		f = s.channelPlay
+	case "ChannelPlayWithoutID":
+		f = s.channelPlayWithoutID
+	case "ChannelPlayOnCollection":
+		f = s.channelPlayWithoutID
 	case "ChannelStagePlay":
 		f = s.channelStagePlay
 	case "ChannelRecord":
@@ -469,6 +511,10 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 		f = s.channelSilence
 	case "ChannelSnoop":
 		f = s.channelSnoop
+	case "ChannelSnoopWithoutID":
+		f = s.channelSnoopWithoutID
+	case "ChannelSnoopOnCollection":
+		f = s.channelSnoopWithoutID
 	case "ChannelStageSnoop":
 		f = s.channelStageSnoop
 	case "ChannelExternalMedia":
@@ -491,6 +537,18 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 		f = s.channelVariableGet
 	case "ChannelVariableSet":
 		f = s.channelVariableSet
+	case "ChannelVariablesGet":
+		f = s.channelVariablesGet
+	case "ChannelVariablesSet":
+		f = s.channelVariablesSet
+	case "ChannelRedirect":
+		f = s.channelRedirect
+	case "ChannelProgress":
+		f = s.channelProgress
+	case "ChannelTransferProgress":
+		f = s.channelTransferProgress
+	case "ChannelRTPStatistics":
+		f = s.channelRTPStatistics
 	case "DeviceStateData":
 		f = s.deviceStateData
 	case "DeviceStateDelete":
@@ -509,6 +567,12 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 		f = s.endpointList
 	case "EndpointListByTech":
 		f = s.endpointListByTech
+	case "EndpointRefer":
+		f = s.endpointRefer
+	case "EndpointReferToEndpoint":
+		f = s.endpointReferToEndpoint
+	case "EventClaimChannel":
+		f = s.eventClaimChannel
 	case "MailboxData":
 		f = s.mailboxData
 	case "MailboxDelete":
@@ -539,6 +603,12 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 		f = s.recordingStoredGet
 	case "RecordingStoredList":
 		f = s.recordingStoredList
+	case "RecordingStoredFileOpen":
+		f = s.recordingStoredFileOpen
+	case "RecordingStoredFileRead":
+		f = s.recordingStoredFileRead
+	case "RecordingStoredFileClose":
+		f = s.recordingStoredFileClose
 	case "RecordingLiveData":
 		f = s.recordingLiveData
 	case "RecordingLiveGet":
@@ -561,6 +631,10 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 		f = s.soundData
 	case "SoundList":
 		f = s.soundList
+	case "TextMessageSend":
+		f = s.textMessageSend
+	case "TextMessageSendByURI":
+		f = s.textMessageSendByURI
 	case "ChannelUserEvent":
 		f = s.channelUserEvent
 	default:

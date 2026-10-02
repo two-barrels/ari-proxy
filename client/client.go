@@ -6,11 +6,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/client/bus"
-	"github.com/CyCoreSystems/ari-proxy/v5/client/cluster"
-	"github.com/CyCoreSystems/ari-proxy/v5/messagebus"
-	"github.com/CyCoreSystems/ari-proxy/v5/proxy"
-	"github.com/CyCoreSystems/ari/v5"
+	"github.com/two-barrels/ari-proxy/v6/client/bus"
+	"github.com/two-barrels/ari-proxy/v6/client/cluster"
+	"github.com/two-barrels/ari-proxy/v6/messagebus"
+	"github.com/two-barrels/ari-proxy/v6/proxy"
+	"github.com/two-barrels/ari/v6"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/rotisserie/eris"
 
@@ -467,7 +467,7 @@ func (c *Client) StoredRecording() ari.StoredRecording {
 
 // TextMessage is the text message accessor
 func (c *Client) TextMessage() ari.TextMessage {
-	return nil
+	return &textMessage{c: c}
 }
 
 func (c *Client) commandRequest(req *proxy.Request) error {
@@ -543,7 +543,7 @@ func (c *Client) makeRequest(class string, req *proxy.Request) (*proxy.Response,
 		return c.makeBroadcastRequestReturnFirstGoodResponse(class, req)
 	}
 
-	c.log.Error("request", "class", class, "req", req, "subject", c.subject(class, req))
+	c.log.Debug("request", "class", class, "req", req, "subject", c.subject(class, req))
 	return c.mbus.Request(c.subject(class, req), req)
 }
 

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CyCoreSystems/ari/v5/rid"
+	"github.com/two-barrels/ari/v6/rid"
 )
 
 func TestHash(t *testing.T) {
@@ -37,6 +37,15 @@ func TestAll(t *testing.T) {
 	list = c.All(0)
 	if len(list) != 4 {
 		t.Errorf("Incorrect number of cluster members: %d != 4", len(list))
+	}
+}
+
+func TestMatchingZeroMaxAgeIncludesLiveMembers(t *testing.T) {
+	c := New()
+	c.Update("node-1", "demo")
+	members := c.Matching("", "demo", 0)
+	if len(members) != 1 || members[0].ID != "node-1" {
+		t.Fatalf("matching members = %+v", members)
 	}
 }
 

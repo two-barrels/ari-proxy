@@ -1,11 +1,12 @@
 package client
 
 import (
+	"errors"
 	"time"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/proxy"
-	"github.com/CyCoreSystems/ari/v5"
-	"github.com/CyCoreSystems/ari/v5/rid"
+	"github.com/two-barrels/ari-proxy/v6/proxy"
+	"github.com/two-barrels/ari/v6"
+	"github.com/two-barrels/ari/v6/rid"
 )
 
 type channel struct {
@@ -39,6 +40,21 @@ func (c *channel) Originate(referenceKey *ari.Key, o ari.OriginateRequest) (*ari
 			OriginateRequest: o,
 		},
 	})
+	if err != nil {
+		return nil, err
+	}
+	return ari.NewChannelHandle(k, c, nil), nil
+}
+
+func (c *channel) OriginateWithID(referenceKey *ari.Key, o ari.OriginateRequest) (*ari.ChannelHandle, error) {
+	if err := requireRouteTarget(referenceKey); err != nil {
+		return nil, err
+	}
+	if o.ChannelID == "" {
+		return nil, errors.New("channel ID required for path-ID originate")
+	}
+	k, err := c.c.createRequest(&proxy.Request{Kind: "ChannelOriginateWithID", Key: referenceKey,
+		ChannelOriginate: &proxy.ChannelOriginate{OriginateRequest: o}})
 	if err != nil {
 		return nil, err
 	}
@@ -106,14 +122,16 @@ func (c *channel) Continue(key *ari.Key, context string, extension string, prior
 	})
 }
 
-func (c *channel) Move(key *ari.Key, app string, appArgs string) error {
+func (c *channel) ContinueWithOptions(key *ari.Key, opts ari.ChannelContinueOptions) error {
+	return c.c.commandRequest(&proxy.Request{Kind: "ChannelContinue", Key: key,
+		ChannelContinue: &proxy.ChannelContinue{Options: &opts}})
+}
+
+func (c *channel) Move(key *ari.Key, app, appArgs string) error {
 	return c.c.commandRequest(&proxy.Request{
-		Kind: "ChannelMove",
-		Key:  key,
-		ChannelMove: &proxy.ChannelMove{
-			App:     app,
-			AppArgs: appArgs,
-		},
+		Kind:        "ChannelMove",
+		Key:         key,
+		ChannelMove: &proxy.ChannelMove{App: app, AppArgs: appArgs},
 	})
 }
 
@@ -139,6 +157,11 @@ func (c *channel) Hangup(key *ari.Key, reason string) error {
 			Reason: reason,
 		},
 	})
+}
+
+func (c *channel) HangupWithOptions(key *ari.Key, opts ari.ChannelHangupOptions) error {
+	return c.c.commandRequest(&proxy.Request{Kind: "ChannelHangup", Key: key,
+		ChannelHangup: &proxy.ChannelHangup{Reason: opts.Reason, ReasonCode: opts.ReasonCode}})
 }
 
 func (c *channel) Answer(key *ari.Key) error {
@@ -256,6 +279,30 @@ func (c *channel) Snoop(key *ari.Key, snoopID string, opts *ari.SnoopOptions) (*
 	return ari.NewChannelHandle(k.New(ari.ChannelKey, snoopID), c, nil), nil
 }
 
+func (c *channel) SnoopWithoutID(key *ari.Key, opts *ari.SnoopOptions) (*ari.ChannelHandle, error) {
+	if err := requireRouteTarget(key); err != nil {
+		return nil, err
+	}
+	k, err := c.c.createRequest(&proxy.Request{Kind: "ChannelSnoopWithoutID", Key: key,
+		ChannelSnoop: &proxy.ChannelSnoop{Options: opts}})
+	if err != nil {
+		return nil, err
+	}
+	return ari.NewChannelHandle(k, c, nil), nil
+}
+
+func (c *channel) SnoopOnCollection(key *ari.Key, snoopID string, opts *ari.SnoopOptions) (*ari.ChannelHandle, error) {
+	if err := requireRouteTarget(key); err != nil {
+		return nil, err
+	}
+	k, err := c.c.createRequest(&proxy.Request{Kind: "ChannelSnoopOnCollection", Key: key,
+		ChannelSnoop: &proxy.ChannelSnoop{SnoopID: snoopID, Options: opts}})
+	if err != nil {
+		return nil, err
+	}
+	return ari.NewChannelHandle(k, c, nil), nil
+}
+
 func (c *channel) StageSnoop(key *ari.Key, snoopID string, opts *ari.SnoopOptions) (*ari.ChannelHandle, error) {
 	// this getRequest is done merely to locate the Asterisk box on which the
 	// snoop will be initiated.  It will never actually be Exec'd
@@ -302,7 +349,7 @@ func (c *channel) StageExternalMedia(referenceKey *ari.Key, opts ari.ExternalMed
 	// Asterisk box at the time of staging even though this staging call will
 	// never actually be used.
 	k, err := c.c.createRequest(&proxy.Request{
-		Kind: "ChannelStageOriginate",
+		Kind: "ChannelStageExternalMedia",
 		Key:  referenceKey,
 		ChannelExternalMedia: &proxy.ChannelExternalMedia{
 			Options: opts,
@@ -328,18 +375,19 @@ func (c *channel) Dial(key *ari.Key, caller string, timeout time.Duration) error
 	})
 }
 
-func (c *channel) Play(key *ari.Key, playbackID string, mediaURI string) (*ari.PlaybackHandle, error) {
+func (c *channel) Play(key *ari.Key, playbackID string, mediaURI ...string) (*ari.PlaybackHandle, error) {
+	return c.PlayWithOptions(key, playbackID, ari.ChannelPlayOptions{Media: mediaURI})
+}
+
+func (c *channel) PlayWithOptions(key *ari.Key, playbackID string, opts ari.ChannelPlayOptions) (*ari.PlaybackHandle, error) {
 	if playbackID == "" {
 		playbackID = rid.New(rid.Playback)
 	}
 
 	k, err := c.c.createRequest(&proxy.Request{
-		Kind: "ChannelPlay",
-		Key:  key,
-		ChannelPlay: &proxy.ChannelPlay{
-			PlaybackID: playbackID,
-			MediaURI:   mediaURI,
-		},
+		Kind:        "ChannelPlay",
+		Key:         key,
+		ChannelPlay: channelPlayPayload(playbackID, opts),
 	})
 	if err != nil {
 		return nil, err
@@ -347,26 +395,63 @@ func (c *channel) Play(key *ari.Key, playbackID string, mediaURI string) (*ari.P
 	return ari.NewPlaybackHandle(k.New(ari.PlaybackKey, playbackID), c.c.Playback(), nil), nil
 }
 
-func (c *channel) StagePlay(key *ari.Key, playbackID string, mediaURI string) (*ari.PlaybackHandle, error) {
+func (c *channel) PlayWithoutID(key *ari.Key, opts ari.ChannelPlayOptions) (*ari.PlaybackHandle, error) {
+	if err := requireRouteTarget(key); err != nil {
+		return nil, err
+	}
+	k, err := c.c.createRequest(&proxy.Request{Kind: "ChannelPlayWithoutID", Key: key,
+		ChannelPlay: channelPlayPayload("", opts)})
+	if err != nil {
+		return nil, err
+	}
+	return ari.NewPlaybackHandle(k, c.c.Playback(), nil), nil
+}
+
+func (c *channel) PlayOnCollection(key *ari.Key, playbackID string, opts ari.ChannelPlayOptions) (*ari.PlaybackHandle, error) {
+	if err := requireRouteTarget(key); err != nil {
+		return nil, err
+	}
+	k, err := c.c.createRequest(&proxy.Request{Kind: "ChannelPlayOnCollection", Key: key,
+		ChannelPlay: channelPlayPayload(playbackID, opts)})
+	if err != nil {
+		return nil, err
+	}
+	return ari.NewPlaybackHandle(k, c.c.Playback(), nil), nil
+}
+
+func (c *channel) StagePlay(key *ari.Key, playbackID string, mediaURI ...string) (*ari.PlaybackHandle, error) {
+	return c.StagePlayWithOptions(key, playbackID, ari.ChannelPlayOptions{Media: mediaURI})
+}
+
+func (c *channel) StagePlayWithOptions(key *ari.Key, playbackID string, opts ari.ChannelPlayOptions) (*ari.PlaybackHandle, error) {
 	if playbackID == "" {
 		playbackID = rid.New(rid.Playback)
 	}
 
 	k, err := c.c.getRequest(&proxy.Request{
-		Kind: "ChannelStagePlay",
-		Key:  key,
-		ChannelPlay: &proxy.ChannelPlay{
-			PlaybackID: playbackID,
-			MediaURI:   mediaURI,
-		},
+		Kind:        "ChannelStagePlay",
+		Key:         key,
+		ChannelPlay: channelPlayPayload(playbackID, opts),
 	})
 	if err != nil {
 		return nil, err
 	}
 	return ari.NewPlaybackHandle(k.New(ari.PlaybackKey, playbackID), c.c.Playback(), func(h *ari.PlaybackHandle) error {
-		_, err := c.Play(k.New(ari.ChannelKey, key.ID), playbackID, mediaURI)
+		_, err := c.PlayWithOptions(k.New(ari.ChannelKey, key.ID), playbackID, opts)
 		return err
 	}), nil
+}
+
+func channelPlayPayload(id string, opts ari.ChannelPlayOptions) *proxy.ChannelPlay {
+	media := opts.Media
+	p := &proxy.ChannelPlay{PlaybackID: id, Options: &opts}
+	if len(media) > 0 {
+		p.MediaURI = media[0]
+	}
+	if len(media) > 1 {
+		p.MediaURIs = media
+	}
+	return p
 }
 
 func (c *channel) Record(key *ari.Key, name string, opts *ari.RecordingOptions) (*ari.LiveRecordingHandle, error) {
@@ -440,6 +525,51 @@ func (c *channel) SetVariable(key *ari.Key, name, value string) error {
 			Value: value,
 		},
 	})
+}
+
+func (c *channel) SetVariableWithOptions(key *ari.Key, name, value string, opts *ari.ChannelVariableSetOptions) error {
+	var reportEvents *bool
+	if opts != nil {
+		reportEvents = opts.ReportEvents
+	}
+	return c.c.commandRequest(&proxy.Request{Kind: "ChannelVariableSet", Key: key,
+		ChannelVariable: &proxy.ChannelVariable{Name: name, Value: value, ReportEvents: reportEvents}})
+}
+
+func (c *channel) GetVariables(key *ari.Key, names ...string) (map[string]any, error) {
+	data, err := c.c.dataRequest(&proxy.Request{Kind: "ChannelVariablesGet", Key: key,
+		ChannelVariables: &proxy.ChannelVariables{Names: names}})
+	if err != nil {
+		return nil, err
+	}
+	return data.Variables, nil
+}
+
+func (c *channel) SetVariables(key *ari.Key, values map[string]ari.VariableAssignment) error {
+	return c.c.commandRequest(&proxy.Request{Kind: "ChannelVariablesSet", Key: key,
+		ChannelVariables: &proxy.ChannelVariables{Values: values}})
+}
+
+func (c *channel) Redirect(key *ari.Key, endpoint string) error {
+	return c.c.commandRequest(&proxy.Request{Kind: "ChannelRedirect", Key: key,
+		ChannelRedirect: &proxy.ChannelRedirect{Endpoint: endpoint}})
+}
+
+func (c *channel) Progress(key *ari.Key) error {
+	return c.c.commandRequest(&proxy.Request{Kind: "ChannelProgress", Key: key})
+}
+
+func (c *channel) TransferProgress(key *ari.Key, state string) error {
+	return c.c.commandRequest(&proxy.Request{Kind: "ChannelTransferProgress", Key: key,
+		ChannelTransferProgress: &proxy.ChannelTransferProgress{States: state}})
+}
+
+func (c *channel) RTPStatistics(key *ari.Key) (*ari.RTPStats, error) {
+	data, err := c.c.dataRequest(&proxy.Request{Kind: "ChannelRTPStatistics", Key: key})
+	if err != nil {
+		return nil, err
+	}
+	return data.RTPStats, nil
 }
 
 func (c *channel) UserEvent(key *ari.Key, ue *ari.ChannelUserevent) error {

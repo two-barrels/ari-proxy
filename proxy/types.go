@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/CyCoreSystems/ari/v5"
+	"github.com/two-barrels/ari/v6"
 )
 
 // AnnouncementInterval is the amount of time to wait between periodic service availability announcements
@@ -37,6 +37,7 @@ func PingSubject(prefix string) string {
 type EntityData struct {
 	Application     *ari.ApplicationData     `json:"application,omitempty"`
 	Asterisk        *ari.AsteriskInfo        `json:"asterisk,omitempty"`
+	AsteriskPing    *ari.AsteriskPing        `json:"asterisk_ping,omitempty"`
 	Bridge          *ari.BridgeData          `json:"bridge,omitempty"`
 	Channel         *ari.ChannelData         `json:"channel,omitempty"`
 	Config          *ari.ConfigData          `json:"config,omitempty"`
@@ -50,8 +51,10 @@ type EntityData struct {
 	Sound           *ari.SoundData           `json:"sound,omitempty"`
 	StoredRecording *ari.StoredRecordingData `json:"stored_recording,omitempty"`
 	TextMessage     *ari.TextMessageData     `json:"text_message,omitempty"`
+	RTPStats        *ari.RTPStats            `json:"rtp_stats,omitempty"`
 
-	Variable string `json:"variable,omitempty"`
+	Variable  string         `json:"variable,omitempty"`
+	Variables map[string]any `json:"variables,omitempty"`
 }
 
 // ErrNotFound indicates that the operation did not return a result
@@ -61,6 +64,12 @@ var ErrNotFound = errors.New("Not found")
 type Response struct {
 	// Error is the error encountered
 	Error string `json:"error"`
+
+	// StatusCode preserves an ARI HTTP error status across the message bus.
+	StatusCode int `json:"status_code,omitempty"`
+
+	// RecordingFile carries at most one bounded binary chunk or open metadata.
+	RecordingFile *RecordingFileResponse `json:"recording_file,omitempty"`
 
 	// Data is the returned entity data, if applicable
 	Data *EntityData `json:"data,omitempty"`
@@ -72,12 +81,24 @@ type Response struct {
 	Keys []*ari.Key `json:"keys,omitempty"`
 }
 
+// StatusError is an ARI HTTP error returned through the proxy.
+type StatusError struct {
+	Message string
+	Status  int
+}
+
+func (e *StatusError) Error() string { return e.Message }
+func (e *StatusError) Code() int     { return e.Status }
+
 // Err returns an error from the Response.  If the response's Error is empty, a nil error is returned.  Otherwise, the error will be filled with the value of response.Error.
 func (e *Response) Err() error {
 	if e == nil {
 		return nil
 	}
 	if e.Error != "" {
+		if e.StatusCode != 0 {
+			return &StatusError{Message: e.Error, Status: e.StatusCode}
+		}
 		return errors.New(e.Error)
 	}
 	return nil
@@ -93,7 +114,12 @@ func NewErrorResponse(err error) *Response {
 	if err == nil {
 		return &Response{}
 	}
-	return &Response{Error: err.Error()}
+	response := &Response{Error: err.Error()}
+	var coded interface{ Code() int }
+	if errors.As(err, &coded) {
+		response.StatusCode = coded.Code()
+	}
+	return response
 }
 
 // Request describes a request which is sent from an ARI proxy Client to an ARI proxy Server
@@ -104,13 +130,17 @@ type Request struct {
 	// Key is the key or key filter on which this request should be processed
 	Key *ari.Key `json:"key"`
 
-	ApplicationSubscribe *ApplicationSubscribe `json:"application_subscribe,omitempty"`
+	ApplicationSubscribe   *ApplicationSubscribe       `json:"application_subscribe,omitempty"`
+	ApplicationEventFilter *ari.ApplicationEventFilter `json:"application_event_filter,omitempty"`
 
-	AsteriskConfig         *AsteriskConfig         `json:"asterisk_config,omitempty"`
-	AsteriskLoggingChannel *AsteriskLoggingChannel `json:"asterisk_logging_channel,omitempty"`
-	AsteriskVariableSet    *AsteriskVariableSet    `json:"asterisk_variable_set,omitempty"`
+	AsteriskConfig         *AsteriskConfig          `json:"asterisk_config,omitempty"`
+	AsteriskLoggingChannel *AsteriskLoggingChannel  `json:"asterisk_logging_channel,omitempty"`
+	AsteriskVariableSet    *AsteriskVariableSet     `json:"asterisk_variable_set,omitempty"`
+	AsteriskInfoOptions    *ari.AsteriskInfoOptions `json:"asterisk_info_options,omitempty"`
 
 	BridgeAddChannel    *BridgeAddChannel    `json:"bridge_add_channel,omitempty"`
+	BridgeVariable      *BridgeVariable      `json:"bridge_variable,omitempty"`
+	BridgeVariables     *BridgeVariables     `json:"bridge_variables,omitempty"`
 	BridgeCreate        *BridgeCreate        `json:"bridge_create,omitempty"`
 	BridgeMOH           *BridgeMOH           `json:"bridge_moh,omitempty"`
 	BridgePlay          *BridgePlay          `json:"bridge_play,omitempty"`
@@ -118,33 +148,67 @@ type Request struct {
 	BridgeRemoveChannel *BridgeRemoveChannel `json:"bridge_remove_channel,omitempty"`
 	BridgeVideoSource   *BridgeVideoSource   `json:"bridge_video_source,omitempty"`
 
-	ChannelCreate        *ChannelCreate        `json:"channel_create,omitempty"`
-	ChannelContinue      *ChannelContinue      `json:"channel_continue,omitempty"`
-	ChannelDial          *ChannelDial          `json:"channel_dial,omitempty"`
-	ChannelHangup        *ChannelHangup        `json:"channel_hangup,omitempty"`
-	ChannelMOH           *ChannelMOH           `json:"channel_moh,omitempty"`
-	ChannelMove          *ChannelMove          `json:"channel_move,omitempty"`
-	ChannelMute          *ChannelMute          `json:"channel_mute,omitempty"`
-	ChannelOriginate     *ChannelOriginate     `json:"channel_originate,omitempty"`
-	ChannelPlay          *ChannelPlay          `json:"channel_play,omitempty"`
-	ChannelRecord        *ChannelRecord        `json:"channel_record,omitempty"`
-	ChannelSendDTMF      *ChannelSendDTMF      `json:"channel_send_dtmf,omitempty"`
-	ChannelSnoop         *ChannelSnoop         `json:"channel_snoop,omitempty"`
-	ChannelExternalMedia *ChannelExternalMedia `json:"channel_external_media,omitempty"`
-	ChannelVariable      *ChannelVariable      `json:"channel_variable,omitempty"`
-	ChannelUserevent     *ChannelUserevent     `json:"channel_user_event,omitempty"`
+	ChannelCreate           *ChannelCreate           `json:"channel_create,omitempty"`
+	ChannelContinue         *ChannelContinue         `json:"channel_continue,omitempty"`
+	ChannelMove             *ChannelMove             `json:"channel_move,omitempty"`
+	ChannelDial             *ChannelDial             `json:"channel_dial,omitempty"`
+	ChannelHangup           *ChannelHangup           `json:"channel_hangup,omitempty"`
+	ChannelMOH              *ChannelMOH              `json:"channel_moh,omitempty"`
+	ChannelMute             *ChannelMute             `json:"channel_mute,omitempty"`
+	ChannelOriginate        *ChannelOriginate        `json:"channel_originate,omitempty"`
+	ChannelPlay             *ChannelPlay             `json:"channel_play,omitempty"`
+	ChannelRecord           *ChannelRecord           `json:"channel_record,omitempty"`
+	ChannelSendDTMF         *ChannelSendDTMF         `json:"channel_send_dtmf,omitempty"`
+	ChannelSnoop            *ChannelSnoop            `json:"channel_snoop,omitempty"`
+	ChannelExternalMedia    *ChannelExternalMedia    `json:"channel_external_media,omitempty"`
+	ChannelVariable         *ChannelVariable         `json:"channel_variable,omitempty"`
+	ChannelVariables        *ChannelVariables        `json:"channel_variables,omitempty"`
+	ChannelRedirect         *ChannelRedirect         `json:"channel_redirect,omitempty"`
+	ChannelTransferProgress *ChannelTransferProgress `json:"channel_transfer_progress,omitempty"`
+	ChannelUserevent        *ChannelUserevent        `json:"channel_user_event,omitempty"`
 
 	DeviceStateUpdate *DeviceStateUpdate `json:"device_state_update,omitempty"`
 
-	EndpointListByTech *EndpointListByTech `json:"endpoint_list_by_tech,omitempty"`
+	EndpointListByTech *EndpointListByTech       `json:"endpoint_list_by_tech,omitempty"`
+	EndpointRefer      *ari.EndpointReferOptions `json:"endpoint_refer,omitempty"`
+	EventClaim         *EventClaim               `json:"event_claim,omitempty"`
 
 	MailboxUpdate *MailboxUpdate `json:"mailbox_update,omitempty"`
 
 	PlaybackControl *PlaybackControl `json:"playback_control,omitempty"`
 
-	RecordingStoredCopy *RecordingStoredCopy `json:"recording_stored_copy,omitempty"`
+	RecordingStoredCopy *RecordingStoredCopy  `json:"recording_stored_copy,omitempty"`
+	RecordingFile       *RecordingFileRequest `json:"recording_file,omitempty"`
 
-	SoundList *SoundList `json:"sound_list,omitempty"`
+	SoundList       *SoundList       `json:"sound_list,omitempty"`
+	TextMessageSend *TextMessageSend `json:"text_message_send,omitempty"`
+}
+
+// BridgeVariable carries a single bridge variable name, value, and event option.
+type BridgeVariable struct {
+	Name         string `json:"name"`
+	Value        string `json:"value"`
+	ReportEvents *bool  `json:"report_events,omitempty"`
+}
+
+// BridgeVariables carries repeated names for a read or assignments for a write.
+type BridgeVariables struct {
+	Names  []string                                `json:"names,omitempty"`
+	Values map[string]ari.BridgeVariableAssignment `json:"values,omitempty"`
+}
+
+// ChannelVariables carries repeated names for a read or assignments for a write.
+type ChannelVariables struct {
+	Names  []string                          `json:"names,omitempty"`
+	Values map[string]ari.VariableAssignment `json:"values,omitempty"`
+}
+
+type ChannelRedirect struct {
+	Endpoint string `json:"endpoint"`
+}
+
+type ChannelTransferProgress struct {
+	States string `json:"states"`
 }
 
 // ApplicationSubscribe describes a request to subscribe/unsubscribe a particular ARI application to an EventSource
@@ -175,7 +239,8 @@ type BridgeAddChannel struct {
 	Mute bool `json:"mute,omitempty"`
 
 	// Role indicates the channel's role in the bridge
-	Role string `json:"role,omitempty"`
+	Role                        string `json:"role,omitempty"`
+	InhibitConnectedLineUpdates *bool  `json:"inhibit_connected_line_updates,omitempty"`
 }
 
 // BridgeCreate is the request type for creating a bridge
@@ -183,10 +248,12 @@ type BridgeCreate struct {
 	// Type is the comma-separated list of bridge type attributes (mixing,
 	// holding, dtmf_events, proxy_media).  If not set, the default (mixing)
 	// will be used.
-	Type string `json:"type"`
+	Type     string `json:"type"`
+	BridgeID string `json:"bridge_id,omitempty"`
 
 	// Name is the name to assign to the bridge (optional)
-	Name string `json:"name,omitempty"`
+	Name      string                              `json:"name,omitempty"`
+	Variables map[string]ari.BridgeCreateVariable `json:"variables,omitempty"`
 }
 
 // BridgeMOH is the request type for playing Music on Hold to a bridge
@@ -202,6 +269,16 @@ type BridgePlay struct {
 
 	// MediaURI is the URI from which to obtain the playback media
 	MediaURI string `json:"media_uri"`
+	// MediaURIs carries multiple media items without changing the legacy field.
+	MediaURIs []string               `json:"media_uris,omitempty"`
+	Options   *ari.BridgePlayOptions `json:"options,omitempty"`
+}
+
+func (p *BridgePlay) URIs() []string {
+	if len(p.MediaURIs) > 0 {
+		return p.MediaURIs
+	}
+	return []string{p.MediaURI}
 }
 
 // BridgeRecord is the request for recording a bridge
@@ -240,7 +317,15 @@ type ChannelContinue struct {
 	Extension string `json:"extension"`
 
 	// Priority is the priority at which the channel should be continued
-	Priority int `json:"priority"`
+	Priority int                         `json:"priority"`
+	Options  *ari.ChannelContinueOptions `json:"options,omitempty"`
+}
+
+// ChannelMove describes a move to another Stasis application. Proxy-owned
+// fields use snake_case; the native client maps app_args to ARI's appArgs.
+type ChannelMove struct {
+	App     string `json:"app"`
+	AppArgs string `json:"app_args,omitempty"`
 }
 
 // ChannelDial describes a request to dial
@@ -255,19 +340,14 @@ type ChannelDial struct {
 // ChannelHangup is the request for hanging up a channel
 type ChannelHangup struct {
 	// Reason is the reason the channel is being hung up
-	Reason string `json:"reason"`
+	Reason     string `json:"reason"`
+	ReasonCode string `json:"reason_code,omitempty"`
 }
 
 // ChannelMOH is the request playing hold on music on a channel
 type ChannelMOH struct {
 	// Music is the music to play
 	Music string `json:"music"`
-}
-
-// ChannelMove is the request for moving channel to another stasis application
-type ChannelMove struct {
-	App     string `json:"app"`
-	AppArgs string `json:"appArgs"`
 }
 
 // ChannelMute is the request for muting or unmuting a channel
@@ -288,7 +368,16 @@ type ChannelPlay struct {
 	PlaybackID string `json:"playback_id"`
 
 	// MediaURI is the URI from which to obtain the playback media
-	MediaURI string `json:"media_uri"`
+	MediaURI  string                  `json:"media_uri"`
+	MediaURIs []string                `json:"media_uris,omitempty"`
+	Options   *ari.ChannelPlayOptions `json:"options,omitempty"`
+}
+
+func (p *ChannelPlay) URIs() []string {
+	if len(p.MediaURIs) > 0 {
+		return p.MediaURIs
+	}
+	return []string{p.MediaURI}
 }
 
 // ChannelRecord is the request for recording a channel
@@ -329,7 +418,8 @@ type ChannelVariable struct {
 	Name string `json:"name"`
 
 	// Value is the value to set to the channel variable
-	Value string `json:"value,omitempty"`
+	Value        string `json:"value,omitempty"`
+	ReportEvents *bool  `json:"report_events,omitempty"`
 }
 
 // DeviceStateUpdate describes the request for updating the device state
@@ -342,6 +432,35 @@ type DeviceStateUpdate struct {
 type EndpointListByTech struct {
 	// Tech is the technology for the endpoint
 	Tech string `json:"tech"`
+}
+
+// EventClaim identifies the broadcast channel to claim.
+type EventClaim struct {
+	ChannelID string `json:"channel_id"`
+}
+
+// TextMessageSend carries a text message and its technology variables.
+type TextMessageSend struct {
+	From      string            `json:"from"`
+	To        string            `json:"to,omitempty"`
+	Body      string            `json:"body"`
+	Variables map[string]string `json:"variables"`
+}
+
+// RecordingFileRequest identifies an open recording stream and requested chunk.
+type RecordingFileRequest struct {
+	Session  string `json:"session,omitempty"`
+	Sequence uint64 `json:"sequence,omitempty"`
+}
+
+// RecordingFileResponse carries stream metadata or one bounded file chunk.
+type RecordingFileResponse struct {
+	Session     string `json:"session"`
+	ContentType string `json:"content_type,omitempty"`
+	Size        int64  `json:"size,omitempty"`
+	Sequence    uint64 `json:"sequence,omitempty"`
+	Data        []byte `json:"data,omitempty"`
+	EOF         bool   `json:"eof,omitempty"`
 }
 
 // MailboxUpdate describes the request for updating a mailbox

@@ -5,9 +5,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/client"
-	"github.com/CyCoreSystems/ari/v5"
-	"github.com/CyCoreSystems/ari/v5/client/native"
+	"github.com/two-barrels/ari-proxy/v6/client"
+	"github.com/two-barrels/ari/v6"
 
 	"github.com/inconshreveable/log15"
 )
@@ -21,10 +20,8 @@ func main() {
 	defer cancel()
 
 	// connect
-	native.Logger = log
-
 	log.Info("Connecting to ARI")
-	cl, err := client.New(ctx, client.WithApplication(ariApp))
+	cl, err := client.New(ctx, client.WithApplication(ariApp), client.WithLogger(log))
 	if err != nil {
 		log.Error("Failed to build ARI client", "error", err)
 		return

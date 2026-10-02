@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/server"
-	"github.com/CyCoreSystems/ari/v5"
-	"github.com/CyCoreSystems/ari/v5/rid"
+	"github.com/two-barrels/ari-proxy/v6/server"
+	"github.com/two-barrels/ari/v6"
+	"github.com/two-barrels/ari/v6/rid"
 	"github.com/nats-io/nats.go"
 )
 

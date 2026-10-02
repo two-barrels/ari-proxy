@@ -1,6 +1,6 @@
 package server
 
-import "github.com/CyCoreSystems/ari-proxy/v5/session"
+import "github.com/two-barrels/ari-proxy/v6/session"
 
 // Reply is a function which, when called, replies to the request via the
 // response object or error.

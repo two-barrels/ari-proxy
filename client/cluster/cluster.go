@@ -96,7 +96,7 @@ func (c *Cluster) Matching(id, app string, maxAge time.Duration) (list []Member)
 	defer c.mu.Unlock()
 
 	for k, v := range c.members {
-		if time.Since(v) > maxAge {
+		if maxAge != 0 && time.Since(v) > maxAge {
 			continue
 		}
 
@@ -120,10 +120,11 @@ func (c *Cluster) Matching(id, app string, maxAge time.Duration) (list []Member)
 func (c *Cluster) Update(id, app string) {
 	c.mu.Lock()
 	c.members[hash(id, app)] = time.Now()
+	shouldPurge := time.Since(c.lastPurge) > AutoPurgeInterval
 	c.mu.Unlock()
 
 	// See if it is time to auto-purge
-	if time.Since(c.lastPurge) > AutoPurgeInterval {
+	if shouldPurge {
 		c.Purge(AutoPurgeAge)
 	}
 }

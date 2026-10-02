@@ -3,10 +3,37 @@ package server
 import (
 	"context"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/proxy"
-	"github.com/CyCoreSystems/ari/v5"
-	"github.com/CyCoreSystems/ari/v5/rid"
+	"github.com/two-barrels/ari-proxy/v6/proxy"
+	"github.com/two-barrels/ari/v6"
+	"github.com/two-barrels/ari/v6/rid"
 )
+
+func (s *Server) bridgeVariableGet(ctx context.Context, reply string, req *proxy.Request) {
+	value, err := s.ari.Bridge().GetVariable(req.Key, req.BridgeVariable.Name)
+	if err != nil {
+		s.sendError(reply, err)
+		return
+	}
+	s.publish(reply, &proxy.Response{Data: &proxy.EntityData{Variable: value}})
+}
+
+func (s *Server) bridgeVariableSet(ctx context.Context, reply string, req *proxy.Request) {
+	s.sendError(reply, s.ari.Bridge().SetVariable(req.Key, req.BridgeVariable.Name,
+		req.BridgeVariable.Value, req.BridgeVariable.ReportEvents))
+}
+
+func (s *Server) bridgeVariablesGet(ctx context.Context, reply string, req *proxy.Request) {
+	values, err := s.ari.Bridge().GetVariables(req.Key, req.BridgeVariables.Names...)
+	if err != nil {
+		s.sendError(reply, err)
+		return
+	}
+	s.publish(reply, &proxy.Response{Data: &proxy.EntityData{Variables: values}})
+}
+
+func (s *Server) bridgeVariablesSet(ctx context.Context, reply string, req *proxy.Request) {
+	s.sendError(reply, s.ari.Bridge().SetVariables(req.Key, req.BridgeVariables.Values))
+}
 
 func (s *Server) bridgeAddChannel(ctx context.Context, reply string, req *proxy.Request) {
 	channel := req.BridgeAddChannel.Channel
@@ -17,7 +44,12 @@ func (s *Server) bridgeAddChannel(ctx context.Context, reply string, req *proxy.
 		s.Dialog.Bind(req.Key.Dialog, "channel", channel)
 	}
 
-	err := s.ari.Bridge().AddChannel(req.Key, channel)
+	err := s.ari.Bridge().AddChannelWithOptions(req.Key, channel, &ari.BridgeAddChannelOptions{
+		Role:                        req.BridgeAddChannel.Role,
+		AbsorbDTMF:                  req.BridgeAddChannel.AbsorbDTMF,
+		Mute:                        req.BridgeAddChannel.Mute,
+		InhibitConnectedLineUpdates: req.BridgeAddChannel.InhibitConnectedLineUpdates,
+	})
 	if err != nil {
 		s.sendError(reply, err)
 		return
@@ -32,7 +64,9 @@ func (s *Server) bridgeCreate(ctx context.Context, reply string, req *proxy.Requ
 		s.Dialog.Bind(req.Key.Dialog, "bridge", req.Key.ID)
 	}
 
-	h, err := s.ari.Bridge().Create(req.Key, req.BridgeCreate.Type, req.BridgeCreate.Name)
+	h, err := s.ari.Bridge().CreateWithOptions(req.Key, ari.BridgeCreateOptions{
+		Type: req.BridgeCreate.Type, Name: req.BridgeCreate.Name, Variables: req.BridgeCreate.Variables,
+	})
 	if err != nil {
 		s.sendError(reply, err)
 		return
@@ -41,6 +75,25 @@ func (s *Server) bridgeCreate(ctx context.Context, reply string, req *proxy.Requ
 	s.publish(reply, &proxy.Response{
 		Key: h.Key(),
 	})
+}
+
+func (s *Server) bridgeCreateWithoutID(ctx context.Context, reply string, req *proxy.Request) {
+	opts := ari.BridgeCreateOptions{Type: req.BridgeCreate.Type, Name: req.BridgeCreate.Name, Variables: req.BridgeCreate.Variables}
+	var h *ari.BridgeHandle
+	var err error
+	if req.BridgeCreate.BridgeID != "" {
+		h, err = s.ari.Bridge().CreateOnCollection(req.Key, req.BridgeCreate.BridgeID, opts)
+	} else {
+		h, err = s.ari.Bridge().CreateWithoutID(req.Key, opts)
+	}
+	if err != nil {
+		s.sendError(reply, err)
+		return
+	}
+	if req.Key.Dialog != "" {
+		s.Dialog.Bind(req.Key.Dialog, "bridge", h.ID())
+	}
+	s.publish(reply, &proxy.Response{Key: req.Key.New(ari.BridgeKey, h.ID())})
 }
 
 func (s *Server) bridgeStageCreate(ctx context.Context, reply string, req *proxy.Request) {
@@ -143,7 +196,13 @@ func (s *Server) bridgePlay(ctx context.Context, reply string, req *proxy.Reques
 		s.Dialog.Bind(req.Key.Dialog, "playback", req.BridgePlay.PlaybackID)
 	}
 
-	ph, err := s.ari.Bridge().Play(req.Key, req.BridgePlay.PlaybackID, req.BridgePlay.MediaURI)
+	var ph *ari.PlaybackHandle
+	var err error
+	if req.BridgePlay.Options != nil {
+		ph, err = s.ari.Bridge().PlayWithOptions(req.Key, req.BridgePlay.PlaybackID, *req.BridgePlay.Options)
+	} else {
+		ph, err = s.ari.Bridge().Play(req.Key, req.BridgePlay.PlaybackID, req.BridgePlay.URIs()...)
+	}
 	if err != nil {
 		s.sendError(reply, err)
 		return
@@ -152,6 +211,28 @@ func (s *Server) bridgePlay(ctx context.Context, reply string, req *proxy.Reques
 	s.publish(reply, &proxy.Response{
 		Key: ph.Key(),
 	})
+}
+
+func (s *Server) bridgePlayWithoutID(ctx context.Context, reply string, req *proxy.Request) {
+	opts := ari.BridgePlayOptions{Media: req.BridgePlay.URIs()}
+	if req.BridgePlay.Options != nil {
+		opts = *req.BridgePlay.Options
+	}
+	var h *ari.PlaybackHandle
+	var err error
+	if req.BridgePlay.PlaybackID != "" {
+		h, err = s.ari.Bridge().PlayOnCollection(req.Key, req.BridgePlay.PlaybackID, opts)
+	} else {
+		h, err = s.ari.Bridge().PlayWithoutID(req.Key, opts)
+	}
+	if err != nil {
+		s.sendError(reply, err)
+		return
+	}
+	if req.Key.Dialog != "" {
+		s.Dialog.Bind(req.Key.Dialog, "playback", h.ID())
+	}
+	s.publish(reply, &proxy.Response{Key: req.Key.New(ari.PlaybackKey, h.ID())})
 }
 
 func (s *Server) bridgeStagePlay(ctx context.Context, reply string, req *proxy.Request) {

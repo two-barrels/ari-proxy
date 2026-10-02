@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/proxy"
+	"github.com/two-barrels/ari-proxy/v6/proxy"
 )
 
 func (s *Server) asteriskConfigData(ctx context.Context, reply string, req *proxy.Request) {

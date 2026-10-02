@@ -1,9 +1,21 @@
 package client
 
 import (
-	"github.com/CyCoreSystems/ari-proxy/v5/proxy"
-	"github.com/CyCoreSystems/ari/v5"
+	"errors"
+	"github.com/two-barrels/ari-proxy/v6/proxy"
+	"github.com/two-barrels/ari/v6"
 )
+
+func (a *application) ClaimChannel(key *ari.Key, channelID string) error {
+	if key == nil || key.ID == "" || key.App == "" || key.Node == "" {
+		return errors.New("channel claim requires an application and target node")
+	}
+	if channelID == "" {
+		return errors.New("channel ID not supplied")
+	}
+	return a.c.commandRequest(&proxy.Request{Kind: "EventClaimChannel", Key: key,
+		EventClaim: &proxy.EventClaim{ChannelID: channelID}})
+}
 
 type application struct {
 	c *Client
@@ -57,4 +69,17 @@ func (a *application) Unsubscribe(key *ari.Key, eventSource string) (err error) 
 			EventSource: eventSource,
 		},
 	})
+}
+
+func (a *application) FilterEvents(key *ari.Key, filter *ari.ApplicationEventFilter) (*ari.ApplicationData, error) {
+	data, err := a.c.dataRequest(&proxy.Request{
+		Kind: "ApplicationFilterEvents", Key: key, ApplicationEventFilter: filter,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if data.Application == nil {
+		return nil, ErrNil
+	}
+	return data.Application, nil
 }

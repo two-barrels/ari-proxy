@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/CyCoreSystems/ari-proxy/v5/proxy"
-	"github.com/CyCoreSystems/ari/v5"
-	"github.com/CyCoreSystems/ari/v5/rid"
+	"github.com/two-barrels/ari-proxy/v6/proxy"
+	"github.com/two-barrels/ari/v6"
+	"github.com/two-barrels/ari/v6/rid"
 )
 
 func (s *Server) channelAnswer(ctx context.Context, reply string, req *proxy.Request) {
@@ -84,7 +84,19 @@ func (s *Server) channelGet(ctx context.Context, reply string, req *proxy.Reques
 }
 
 func (s *Server) channelContinue(ctx context.Context, reply string, req *proxy.Request) {
+	if req.ChannelContinue.Options != nil {
+		s.sendError(reply, s.ari.Channel().ContinueWithOptions(req.Key, *req.ChannelContinue.Options))
+		return
+	}
 	s.sendError(reply, s.ari.Channel().Continue(req.Key, req.ChannelContinue.Context, req.ChannelContinue.Extension, req.ChannelContinue.Priority))
+}
+
+func (s *Server) channelMove(ctx context.Context, reply string, req *proxy.Request) {
+	if req.ChannelMove == nil {
+		s.sendError(reply, errors.New("ChannelMove is mandatory"))
+		return
+	}
+	s.sendError(reply, s.ari.Channel().Move(req.Key, req.ChannelMove.App, req.ChannelMove.AppArgs))
 }
 
 func (s *Server) channelDial(ctx context.Context, reply string, req *proxy.Request) {
@@ -92,6 +104,12 @@ func (s *Server) channelDial(ctx context.Context, reply string, req *proxy.Reque
 }
 
 func (s *Server) channelHangup(ctx context.Context, reply string, req *proxy.Request) {
+	if req.ChannelHangup.ReasonCode != "" {
+		s.sendError(reply, s.ari.Channel().HangupWithOptions(req.Key, ari.ChannelHangupOptions{
+			Reason: req.ChannelHangup.Reason, ReasonCode: req.ChannelHangup.ReasonCode,
+		}))
+		return
+	}
 	s.sendError(reply, s.ari.Channel().Hangup(req.Key, req.ChannelHangup.Reason))
 }
 
@@ -113,10 +131,6 @@ func (s *Server) channelList(ctx context.Context, reply string, req *proxy.Reque
 
 func (s *Server) channelMOH(ctx context.Context, reply string, req *proxy.Request) {
 	s.sendError(reply, s.ari.Channel().MOH(req.Key, req.ChannelMOH.Music))
-}
-
-func (s *Server) channelMove(ctx context.Context, reply string, req *proxy.Request) {
-	s.sendError(reply, s.ari.Channel().Move(req.Key, req.ChannelMove.App, req.ChannelMove.AppArgs))
 }
 
 func (s *Server) channelMute(ctx context.Context, reply string, req *proxy.Request) {
@@ -156,6 +170,23 @@ func (s *Server) channelOriginate(ctx context.Context, reply string, req *proxy.
 	s.publish(reply, &proxy.Response{
 		Key: h.Key(),
 	})
+}
+
+func (s *Server) channelOriginateWithID(ctx context.Context, reply string, req *proxy.Request) {
+	if req.ChannelOriginate == nil {
+		s.sendError(reply, errors.New("OriginateRequest is mandatory"))
+		return
+	}
+	orig := req.ChannelOriginate.OriginateRequest
+	h, err := s.ari.Channel().OriginateWithID(req.Key, orig)
+	if err != nil {
+		s.sendError(reply, err)
+		return
+	}
+	if req.Key.Dialog != "" {
+		s.Dialog.Bind(req.Key.Dialog, "channel", h.ID())
+	}
+	s.publish(reply, &proxy.Response{Key: req.Key.New(ari.ChannelKey, h.ID())})
 }
 
 func (s *Server) channelStageOriginate(ctx context.Context, reply string, req *proxy.Request) {
@@ -209,7 +240,12 @@ func (s *Server) channelPlay(ctx context.Context, reply string, req *proxy.Reque
 		s.Dialog.Bind(req.Key.Dialog, "playback", req.ChannelPlay.PlaybackID)
 	}
 
-	ph, err := s.ari.Channel().Play(req.Key, req.ChannelPlay.PlaybackID, req.ChannelPlay.MediaURI)
+	var ph *ari.PlaybackHandle
+	if req.ChannelPlay.Options != nil {
+		ph, err = s.ari.Channel().PlayWithOptions(req.Key, req.ChannelPlay.PlaybackID, *req.ChannelPlay.Options)
+	} else {
+		ph, err = s.ari.Channel().Play(req.Key, req.ChannelPlay.PlaybackID, req.ChannelPlay.URIs()...)
+	}
 	if err != nil {
 		s.sendError(reply, err)
 		return
@@ -218,6 +254,28 @@ func (s *Server) channelPlay(ctx context.Context, reply string, req *proxy.Reque
 	s.publish(reply, &proxy.Response{
 		Key: ph.Key(),
 	})
+}
+
+func (s *Server) channelPlayWithoutID(ctx context.Context, reply string, req *proxy.Request) {
+	opts := ari.ChannelPlayOptions{Media: req.ChannelPlay.URIs()}
+	if req.ChannelPlay.Options != nil {
+		opts = *req.ChannelPlay.Options
+	}
+	var h *ari.PlaybackHandle
+	var err error
+	if req.ChannelPlay.PlaybackID != "" {
+		h, err = s.ari.Channel().PlayOnCollection(req.Key, req.ChannelPlay.PlaybackID, opts)
+	} else {
+		h, err = s.ari.Channel().PlayWithoutID(req.Key, opts)
+	}
+	if err != nil {
+		s.sendError(reply, err)
+		return
+	}
+	if req.Key.Dialog != "" {
+		s.Dialog.Bind(req.Key.Dialog, "playback", h.ID())
+	}
+	s.publish(reply, &proxy.Response{Key: req.Key.New(ari.PlaybackKey, h.ID())})
 }
 
 func (s *Server) channelStagePlay(ctx context.Context, reply string, req *proxy.Request) {
@@ -314,6 +372,24 @@ func (s *Server) channelSnoop(ctx context.Context, reply string, req *proxy.Requ
 	s.publish(reply, &proxy.Response{
 		Key: h.Key(),
 	})
+}
+
+func (s *Server) channelSnoopWithoutID(ctx context.Context, reply string, req *proxy.Request) {
+	var h *ari.ChannelHandle
+	var err error
+	if req.ChannelSnoop.SnoopID != "" {
+		h, err = s.ari.Channel().SnoopOnCollection(req.Key, req.ChannelSnoop.SnoopID, req.ChannelSnoop.Options)
+	} else {
+		h, err = s.ari.Channel().SnoopWithoutID(req.Key, req.ChannelSnoop.Options)
+	}
+	if err != nil {
+		s.sendError(reply, err)
+		return
+	}
+	if req.Key.Dialog != "" {
+		s.Dialog.Bind(req.Key.Dialog, "channel", h.ID())
+	}
+	s.publish(reply, &proxy.Response{Key: req.Key.New(ari.ChannelKey, h.ID())})
 }
 
 func (s *Server) channelStageSnoop(ctx context.Context, reply string, req *proxy.Request) {
@@ -433,7 +509,62 @@ func (s *Server) channelVariableGet(ctx context.Context, reply string, req *prox
 }
 
 func (s *Server) channelVariableSet(ctx context.Context, reply string, req *proxy.Request) {
+	if req.ChannelVariable.ReportEvents != nil {
+		s.sendError(reply, s.ari.Channel().SetVariableWithOptions(req.Key, req.ChannelVariable.Name, req.ChannelVariable.Value,
+			&ari.ChannelVariableSetOptions{ReportEvents: req.ChannelVariable.ReportEvents}))
+		return
+	}
 	s.sendError(reply, s.ari.Channel().SetVariable(req.Key, req.ChannelVariable.Name, req.ChannelVariable.Value))
+}
+
+func (s *Server) channelVariablesGet(ctx context.Context, reply string, req *proxy.Request) {
+	if req.ChannelVariables == nil {
+		s.sendError(reply, errors.New("ChannelVariables is mandatory"))
+		return
+	}
+	values, err := s.ari.Channel().GetVariables(req.Key, req.ChannelVariables.Names...)
+	if err != nil {
+		s.sendError(reply, err)
+		return
+	}
+	s.publish(reply, &proxy.Response{Data: &proxy.EntityData{Variables: values}})
+}
+
+func (s *Server) channelVariablesSet(ctx context.Context, reply string, req *proxy.Request) {
+	if req.ChannelVariables == nil {
+		s.sendError(reply, errors.New("ChannelVariables is mandatory"))
+		return
+	}
+	s.sendError(reply, s.ari.Channel().SetVariables(req.Key, req.ChannelVariables.Values))
+}
+
+func (s *Server) channelRedirect(ctx context.Context, reply string, req *proxy.Request) {
+	if req.ChannelRedirect == nil {
+		s.sendError(reply, errors.New("ChannelRedirect is mandatory"))
+		return
+	}
+	s.sendError(reply, s.ari.Channel().Redirect(req.Key, req.ChannelRedirect.Endpoint))
+}
+
+func (s *Server) channelProgress(ctx context.Context, reply string, req *proxy.Request) {
+	s.sendError(reply, s.ari.Channel().Progress(req.Key))
+}
+
+func (s *Server) channelTransferProgress(ctx context.Context, reply string, req *proxy.Request) {
+	if req.ChannelTransferProgress == nil {
+		s.sendError(reply, errors.New("ChannelTransferProgress is mandatory"))
+		return
+	}
+	s.sendError(reply, s.ari.Channel().TransferProgress(req.Key, req.ChannelTransferProgress.States))
+}
+
+func (s *Server) channelRTPStatistics(ctx context.Context, reply string, req *proxy.Request) {
+	stats, err := s.ari.Channel().RTPStatistics(req.Key)
+	if err != nil {
+		s.sendError(reply, err)
+		return
+	}
+	s.publish(reply, &proxy.Response{Data: &proxy.EntityData{RTPStats: stats}})
 }
 
 func (s *Server) channelUserEvent(ctx context.Context, reply string, req *proxy.Request) {
