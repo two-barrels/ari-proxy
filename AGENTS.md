@@ -7,6 +7,12 @@
 Current candidate: `v6.0.0-rc.2`, adding attribution notices and archive/audit
 tooling. It requires ARI `v6.0.0-rc.2` with no local replacement; contract CI
 also reads that tag. Preserve the existing rc.1 tags and v5 main.
+Published rc.2 commit: `9c44cb93565459e4660a11374c6b36587ceb7338`; native:
+`dc3acba72d489a55ba6493caaccaba8010f6e1a6`. Hosted Go run 36982385252 and
+contract run 36982385277 passed; the published-tag consumer gate passed for
+both rc.2 modules without workspace/replacements. Downloaded archives include
+LICENSE/NOTICE/companion notices. phone-apps v6ari pins rc.2 at local commit
+04bfdd3, with full race and vet passing; that application branch is not pushed.
 
 The v6 branch now carries per-file two-barrels modification/creation notices
 relative to the pinned upstream commit in NOTICE. Run `go run ./tools/file-notices`

@@ -6,13 +6,21 @@
 
 The rc.2 pair includes Apache redistribution modification/creation notices,
 retains original attribution, and keeps notice files in standalone snapshots.
-ARI rc.2 is published first; proxy rc.2 requires that exact version without
+Both rc.2 tags are published. ARI was published first; proxy requires that exact version without
 replacements and pins contract source evidence to it. rc.1 tags remain immutable.
-Use this final distribution gate after both rc.2 tags are published:
+The final published-tag distribution gate passed; rerun it with:
 
 ```sh
 GOWORK=off go run ./tools/release-check --ari-version v6.0.0-rc.2 --proxy-version v6.0.0-rc.2
 ```
+
+Release commits: ARI `dc3acba72d489a55ba6493caaccaba8010f6e1a6`, proxy
+`9c44cb93565459e4660a11374c6b36587ceb7338`. [ARI Go CI](https://github.com/two-barrels/ari/actions/runs/36982294964),
+[proxy Go CI](https://github.com/two-barrels/ari-proxy/actions/runs/36982385252),
+and [contract CI](https://github.com/two-barrels/ari-proxy/actions/runs/36982385277)
+passed. Normal module downloads retain LICENSE/NOTICE/companion notices.
+phone-apps v6ari uses rc.2 at local commit 04bfdd3; its full race suite and vet
+passed. No application deployment or push was performed.
 
 Library/proxy APIs and runtime behavior are unchanged from rc.1. The accepted
 live Asterisk 22.10.1 evidence and deferred PBX/broker scope still apply. Binary
