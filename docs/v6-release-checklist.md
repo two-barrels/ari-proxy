@@ -4,8 +4,8 @@
 
 This section supersedes the historical preparation notes below. Both PR #1s
 are merged into permanent `v6` branches. Existing `main` and v5 tags are intact.
-ARI `v6.0.0-rc.1` is published; proxy requires it without replacements and is
-prepared for matching `v6.0.0-rc.1` publication. Local proxy race, vet, contract,
+Both `v6.0.0-rc.1` tags are published; proxy requires ARI without replacements.
+The final published-tag consumer check passed. Local proxy race, vet, contract,
 and standalone snapshot gates pass with the published dependency. Normal proxy
 Go CI no longer checks out the sibling; contract CI pins its source audit to
 the ARI tag. Verify the final published pair with:
@@ -13,6 +13,13 @@ the ARI tag. Verify the final published pair with:
 ```sh
 GOWORK=off go run ./tools/release-check --ari-version v6.0.0-rc.1 --proxy-version v6.0.0-rc.1
 ```
+
+Release commits: ARI `05e769a972ff5b11bb6db96195135cfe52f6db75`, proxy
+`8be33da28f494962efc18a95d05fc0d65deb7756`. Hosted [proxy Go CI](https://github.com/two-barrels/ari-proxy/actions/runs/36978623776)
+and [contract CI](https://github.com/two-barrels/ari-proxy/actions/runs/36978623802)
+passed for the proxy candidate; [ARI CI](https://github.com/two-barrels/ari/actions/runs/36978124329)
+passed for the native candidate. Final published archives built the external
+consumer and both modules without a sibling checkout or replacement.
 
 Candidate publication covers Go modules only. Stable v6, phone-apps migration,
 binary/container publication, and the remaining audits are future work.
