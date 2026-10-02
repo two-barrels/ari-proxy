@@ -1,5 +1,18 @@
 # ari-proxy
-[![Build Status](https://travis-ci.org/CyCoreSystems/ari-proxy.png)](https://travis-ci.org/CyCoreSystems/ari-proxy) [![](https://godoc.org/github.com/CyCoreSystems/ari-proxy?status.svg)](https://godoc.org/github.com/CyCoreSystems/ari-proxy)
+[Go package documentation](https://pkg.go.dev/github.com/two-barrels/ari-proxy/v6)
+
+This is the two-barrels fork of [CyCoreSystems/ari-proxy](https://github.com/CyCoreSystems/ari-proxy).
+
+**Development checkout:** This branch declares `ari-proxy/v6` and uses the sibling `ari/v6` checkout via
+`replace ../ari` in `go.mod` while event-forwarding changes are under development.
+Build it with both repositories checked out as siblings. The released proxy/v5
+module remains the standalone version until this migration is released.
+The [Asterisk 23 coverage audit and upgrade plan](docs/ari-23-upgrade-plan.md)
+tracks endpoint and option gaps in both repositories.
+The [v6 migration guide](docs/v6-migration.md) and
+[release checklist](docs/v6-release-checklist.md) describe the coordinated
+major-version transition. Run `go run ./tools/release-check` to verify packaged
+sources with an external consumer, without sibling paths or local replacements.
 
 Proxy for the Asterisk REST interface (ARI).
 
@@ -45,19 +58,19 @@ bus.
      cycoresystems/ari-proxy
 ```
 
-Binary releases are available on the [releases page](https://github.com/CyCoreSystems/ari-proxy/releases).
+Binary releases are available on the [releases page](https://github.com/two-barrels/ari-proxy/releases).
 
 You can also install the server manually:
 
 ```
-   go install github.com/CyCoreSystems/ari-proxy/v5
+   go install github.com/two-barrels/ari-proxy/v6@<approved-tag>
 ```
 
 ## Client library
 
 `ari-proxy` uses semantic versioning and standard Go modules.  To use it in your
 own Go package, simply reference the
-`github.com/CyCoreSystems/ari-proxy/client/v5` package, and your dependency
+`github.com/two-barrels/ari-proxy/v6/client` package after an approved v6 release, and your dependency
 management tool should be able to manage it.
 
 ### Usage
@@ -66,8 +79,8 @@ Connecting the client to NATS is simple:
 
 ```go
 import (
-   "github.com/CyCoreSystems/ari/v5"
-   "github.com/CyCoreSystems/ari-proxy/v5/client"
+   "github.com/two-barrels/ari/v6"
+   "github.com/two-barrels/ari-proxy/v6/client"
 )
 
 func connect(ctx context.Context, appName string) (ari.Client,error) {
@@ -82,8 +95,8 @@ Connecting the client to RabbitMQ is like:
 
 ```go
 import (
-   "github.com/CyCoreSystems/ari/v5"
-   "github.com/CyCoreSystems/ari-proxy/v5/client"
+   "github.com/two-barrels/ari/v6"
+   "github.com/two-barrels/ari-proxy/v6/client"
 )
 
 func connect(ctx context.Context, appName string) (ari.Client,error) {
@@ -100,13 +113,29 @@ can be used to set the message bus URL.  Doing so allows you to get a client con
 simply with `client.New(ctx)`.
 
 Once an `ari.Client` is obtained, the client functions exactly as the native
-[ari](https://github.com/CyCoreSystems/ari) client.
+[ari](https://github.com/two-barrels/ari) client.
+
+Text messages need a destination Asterisk node when more than one node serves
+the application. Use `SendWithKey` with an endpoint key or
+`SendByURIWithKey` with a node key:
+
+```go
+endpoint := ari.NewEndpointKey("PJSIP", "alice", ari.WithApp(appName), ari.WithNode(nodeID))
+err := c.TextMessage().SendWithKey(endpoint, "operator", "hello", nil)
+
+node := ari.NodeKey(appName, nodeID)
+err = c.TextMessage().SendByURIWithKey(node, "operator", "PJSIP/bob", "hello", nil)
+```
+
+The older `Send` and `SendByURI` methods select a node when exactly one live
+node serves the application. They return an ambiguity error when several nodes
+are available.
 
 More documentation:
 
-  * [ARI library docs](https://godoc.org/github.com/CyCoreSystems/ari)
+  * [ARI library docs](https://pkg.go.dev/github.com/two-barrels/ari/v6)
 
-  * [ARI client examples](https://github.com/CyCoreSystems/ari/tree/master/_examples)
+  * [ARI client examples](https://github.com/two-barrels/ari/tree/codex/v6-modernization/_examples)
 
 
 ### Context

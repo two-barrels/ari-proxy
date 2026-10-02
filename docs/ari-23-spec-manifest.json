@@ -1,0 +1,3186 @@
+{
+  "source": "https://github.com/asterisk/asterisk",
+  "ref": "97d55b3306ca4aa26c0136c67b79470ca4b2b785",
+  "resource_files": [
+    "applications",
+    "asterisk",
+    "bridges",
+    "channels",
+    "deviceStates",
+    "endpoints",
+    "events",
+    "mailboxes",
+    "playbacks",
+    "recordings",
+    "sounds"
+  ],
+  "operations": [
+    {
+      "resource": "applications",
+      "method": "GET",
+      "path": "/applications",
+      "operation": "list",
+      "response": "List[Application]",
+      "since": [
+        "13.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": []
+    },
+    {
+      "resource": "applications",
+      "method": "GET",
+      "path": "/applications/{applicationName}",
+      "operation": "get",
+      "response": "Application",
+      "since": [
+        "13.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "applicationName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "applications",
+      "method": "PUT",
+      "path": "/applications/{applicationName}/eventFilter",
+      "operation": "filter",
+      "response": "Application",
+      "since": [
+        "13.26.0",
+        "16.3.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "applicationName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "filter",
+          "location": "body",
+          "type": "object",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "applications",
+      "method": "DELETE",
+      "path": "/applications/{applicationName}/subscription",
+      "operation": "unsubscribe",
+      "response": "Application",
+      "since": [
+        "13.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "applicationName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "eventSource",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "applications",
+      "method": "POST",
+      "path": "/applications/{applicationName}/subscription",
+      "operation": "subscribe",
+      "response": "Application",
+      "since": [
+        "13.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "applicationName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "eventSource",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "asterisk",
+      "method": "DELETE",
+      "path": "/asterisk/config/dynamic/{configClass}/{objectType}/{id}",
+      "operation": "deleteObject",
+      "response": "void",
+      "since": [
+        "13.5.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "configClass",
+          "location": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "objectType",
+          "location": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "GET",
+      "path": "/asterisk/config/dynamic/{configClass}/{objectType}/{id}",
+      "operation": "getObject",
+      "response": "List[ConfigTuple]",
+      "since": [
+        "13.5.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "configClass",
+          "location": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "objectType",
+          "location": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "PUT",
+      "path": "/asterisk/config/dynamic/{configClass}/{objectType}/{id}",
+      "operation": "updateObject",
+      "response": "List[ConfigTuple]",
+      "since": [
+        "13.5.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "configClass",
+          "location": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "objectType",
+          "location": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "id",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "fields",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "asterisk",
+      "method": "GET",
+      "path": "/asterisk/info",
+      "operation": "getInfo",
+      "response": "AsteriskInfo",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "only",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "asterisk",
+      "method": "GET",
+      "path": "/asterisk/logging",
+      "operation": "listLogChannels",
+      "response": "List[LogChannel]",
+      "since": [
+        "13.6.0"
+      ],
+      "path_parameters": [],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "DELETE",
+      "path": "/asterisk/logging/{logChannelName}",
+      "operation": "deleteLog",
+      "response": "void",
+      "since": [
+        "13.6.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "logChannelName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "POST",
+      "path": "/asterisk/logging/{logChannelName}",
+      "operation": "addLog",
+      "response": "void",
+      "since": [
+        "13.6.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "logChannelName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "configuration",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "asterisk",
+      "method": "PUT",
+      "path": "/asterisk/logging/{logChannelName}/rotate",
+      "operation": "rotateLog",
+      "response": "void",
+      "since": [
+        "13.6.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "logChannelName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "GET",
+      "path": "/asterisk/modules",
+      "operation": "listModules",
+      "response": "List[Module]",
+      "since": [
+        "13.5.0"
+      ],
+      "path_parameters": [],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "DELETE",
+      "path": "/asterisk/modules/{moduleName}",
+      "operation": "unloadModule",
+      "response": "void",
+      "since": [
+        "13.5.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "moduleName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "GET",
+      "path": "/asterisk/modules/{moduleName}",
+      "operation": "getModule",
+      "response": "Module",
+      "since": [
+        "13.5.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "moduleName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "POST",
+      "path": "/asterisk/modules/{moduleName}",
+      "operation": "loadModule",
+      "response": "void",
+      "since": [
+        "13.5.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "moduleName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "PUT",
+      "path": "/asterisk/modules/{moduleName}",
+      "operation": "reloadModule",
+      "response": "void",
+      "since": [
+        "13.5.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "moduleName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "GET",
+      "path": "/asterisk/ping",
+      "operation": "ping",
+      "response": "AsteriskPing",
+      "since": [
+        "13.25.0",
+        "16.2.0"
+      ],
+      "path_parameters": [],
+      "parameters": []
+    },
+    {
+      "resource": "asterisk",
+      "method": "GET",
+      "path": "/asterisk/variable",
+      "operation": "getGlobalVar",
+      "response": "Variable",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "variable",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "asterisk",
+      "method": "POST",
+      "path": "/asterisk/variable",
+      "operation": "setGlobalVar",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "variable",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "value",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "GET",
+      "path": "/bridges",
+      "operation": "list",
+      "response": "List[Bridge]",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": []
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges",
+      "operation": "create",
+      "response": "Bridge",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "type",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "bridgeId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "name",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "DELETE",
+      "path": "/bridges/{bridgeId}",
+      "operation": "destroy",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "bridges",
+      "method": "GET",
+      "path": "/bridges/{bridgeId}",
+      "operation": "get",
+      "response": "Bridge",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges/{bridgeId}",
+      "operation": "createWithId",
+      "response": "Bridge",
+      "since": [
+        "12.2.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "type",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "name",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges/{bridgeId}/addChannel",
+      "operation": "addChannel",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "channel",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "role",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "absorbDTMF",
+          "location": "query",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "mute",
+          "location": "query",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "inhibitConnectedLineUpdates",
+          "location": "query",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "DELETE",
+      "path": "/bridges/{bridgeId}/moh",
+      "operation": "stopMoh",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges/{bridgeId}/moh",
+      "operation": "startMoh",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "mohClass",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges/{bridgeId}/play",
+      "operation": "play",
+      "response": "Playback",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "media",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "announcer_format",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "lang",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offsetms",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 0
+        },
+        {
+          "name": "skipms",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 3000
+        },
+        {
+          "name": "playbackId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges/{bridgeId}/play/{playbackId}",
+      "operation": "playWithId",
+      "response": "Playback",
+      "since": [
+        "12.3.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "playbackId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "media",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "announcer_format",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "lang",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offsetms",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 0
+        },
+        {
+          "name": "skipms",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 3000
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges/{bridgeId}/record",
+      "operation": "record",
+      "response": "LiveRecording",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "format",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "recorder_format",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "maxDurationSeconds",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 0
+        },
+        {
+          "name": "maxSilenceSeconds",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 0
+        },
+        {
+          "name": "ifExists",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "fail"
+        },
+        {
+          "name": "beep",
+          "location": "query",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "terminateOn",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "none"
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges/{bridgeId}/removeChannel",
+      "operation": "removeChannel",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "channel",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "GET",
+      "path": "/bridges/{bridgeId}/variable",
+      "operation": "getBridgeVar",
+      "response": "Variable",
+      "since": [
+        "20.20.0",
+        "22.10.0",
+        "23.4.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "variable",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges/{bridgeId}/variable",
+      "operation": "setBridgeVar",
+      "response": "void",
+      "since": [
+        "20.20.0",
+        "22.10.0",
+        "23.4.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "variable",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "value",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "report_events",
+          "location": "query",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "GET",
+      "path": "/bridges/{bridgeId}/variables",
+      "operation": "getBridgeVars",
+      "response": "Variables",
+      "since": [
+        "20.20.0",
+        "22.10.0",
+        "23.4.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "variables",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges/{bridgeId}/variables",
+      "operation": "setBridgeVars",
+      "response": "void",
+      "since": [
+        "20.20.0",
+        "22.10.0",
+        "23.4.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "bridges",
+      "method": "DELETE",
+      "path": "/bridges/{bridgeId}/videoSource",
+      "operation": "clearVideoSource",
+      "response": "void",
+      "since": [
+        "13.13.0",
+        "14.2.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "bridges",
+      "method": "POST",
+      "path": "/bridges/{bridgeId}/videoSource/{channelId}",
+      "operation": "setVideoSource",
+      "response": "void",
+      "since": [
+        "13.13.0",
+        "14.2.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "bridgeId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "GET",
+      "path": "/channels",
+      "operation": "list",
+      "response": "List[Channel]",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels",
+      "operation": "originate",
+      "response": "Channel",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "endpoint",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "extension",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "context",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "priority",
+          "location": "query",
+          "type": "long",
+          "required": false
+        },
+        {
+          "name": "label",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "app",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "appArgs",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "callerId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "timeout",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 30
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        },
+        {
+          "name": "channelId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "otherChannelId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "originator",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "formats",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/create",
+      "operation": "create",
+      "response": "Channel",
+      "since": [
+        "14.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "endpoint",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "app",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "appArgs",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "channelId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "otherChannelId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "originator",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "formats",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/externalMedia",
+      "operation": "externalMedia",
+      "response": "Channel",
+      "since": [
+        "16.6.0",
+        "17.1.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "channelId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "app",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        },
+        {
+          "name": "external_host",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "encapsulation",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "rtp"
+        },
+        {
+          "name": "transport",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "udp"
+        },
+        {
+          "name": "connection_type",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "client"
+        },
+        {
+          "name": "format",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "both"
+        },
+        {
+          "name": "data",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "transport_data",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "DELETE",
+      "path": "/channels/{channelId}",
+      "operation": "hangup",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "reason_code",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "reason",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "GET",
+      "path": "/channels/{channelId}",
+      "operation": "get",
+      "response": "Channel",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}",
+      "operation": "originateWithId",
+      "response": "Channel",
+      "since": [
+        "12.2.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "endpoint",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "extension",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "context",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "priority",
+          "location": "query",
+          "type": "long",
+          "required": false
+        },
+        {
+          "name": "label",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "app",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "appArgs",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "callerId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "timeout",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 30
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        },
+        {
+          "name": "otherChannelId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "originator",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "formats",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/answer",
+      "operation": "answer",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/continue",
+      "operation": "continueInDialplan",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "context",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "extension",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "priority",
+          "location": "query",
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "label",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/dial",
+      "operation": "dial",
+      "response": "void",
+      "since": [
+        "14.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "caller",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "timeout",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 0
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/dtmf",
+      "operation": "sendDTMF",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dtmf",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "before",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 0
+        },
+        {
+          "name": "between",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 100
+        },
+        {
+          "name": "duration",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 100
+        },
+        {
+          "name": "after",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 0
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "DELETE",
+      "path": "/channels/{channelId}/hold",
+      "operation": "unhold",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/hold",
+      "operation": "hold",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "DELETE",
+      "path": "/channels/{channelId}/moh",
+      "operation": "stopMoh",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/moh",
+      "operation": "startMoh",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "mohClass",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/move",
+      "operation": "move",
+      "response": "void",
+      "since": [
+        "13.26.0",
+        "16.3.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "app",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "appArgs",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "DELETE",
+      "path": "/channels/{channelId}/mute",
+      "operation": "unmute",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "direction",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "both"
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/mute",
+      "operation": "mute",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "direction",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "both"
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/play",
+      "operation": "play",
+      "response": "Playback",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "media",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offsetms",
+          "location": "query",
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "skipms",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 3000
+        },
+        {
+          "name": "playbackId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/play/{playbackId}",
+      "operation": "playWithId",
+      "response": "Playback",
+      "since": [
+        "12.2.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "playbackId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "media",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offsetms",
+          "location": "query",
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "skipms",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 3000
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/progress",
+      "operation": "progress",
+      "response": "void",
+      "since": [
+        "22.6.0",
+        "21.11.0",
+        "20.16.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/record",
+      "operation": "record",
+      "response": "LiveRecording",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "format",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "maxDurationSeconds",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 0
+        },
+        {
+          "name": "maxSilenceSeconds",
+          "location": "query",
+          "type": "int",
+          "required": false,
+          "default": 0
+        },
+        {
+          "name": "ifExists",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "fail"
+        },
+        {
+          "name": "beep",
+          "location": "query",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "terminateOn",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "none"
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/redirect",
+      "operation": "redirect",
+      "response": "void",
+      "since": [
+        "13.3.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "endpoint",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "DELETE",
+      "path": "/channels/{channelId}/ring",
+      "operation": "ringStop",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/ring",
+      "operation": "ring",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "GET",
+      "path": "/channels/{channelId}/rtp_statistics",
+      "operation": "rtpstatistics",
+      "response": "RTPstat",
+      "since": [
+        "13.27.0",
+        "16.4.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "DELETE",
+      "path": "/channels/{channelId}/silence",
+      "operation": "stopSilence",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/silence",
+      "operation": "startSilence",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/snoop",
+      "operation": "snoopChannel",
+      "response": "Channel",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "spy",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "none"
+        },
+        {
+          "name": "whisper",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "none"
+        },
+        {
+          "name": "app",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "appArgs",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "snoopId",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/snoop/{snoopId}",
+      "operation": "snoopChannelWithId",
+      "response": "Channel",
+      "since": [
+        "12.2.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "snoopId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "spy",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "none"
+        },
+        {
+          "name": "whisper",
+          "location": "query",
+          "type": "string",
+          "required": false,
+          "default": "none"
+        },
+        {
+          "name": "app",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "appArgs",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/transfer_progress",
+      "operation": "transfer_progress",
+      "response": "void",
+      "since": [
+        "22.3.0",
+        "21.8.0",
+        "20.13.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "states",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "GET",
+      "path": "/channels/{channelId}/variable",
+      "operation": "getChannelVar",
+      "response": "Variable",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "variable",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/variable",
+      "operation": "setChannelVar",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "variable",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "value",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "report_events",
+          "location": "query",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "GET",
+      "path": "/channels/{channelId}/variables",
+      "operation": "getChannelVars",
+      "response": "Variables",
+      "since": [
+        "20.20.0",
+        "22.10.0",
+        "23.4.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "variables",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "channels",
+      "method": "POST",
+      "path": "/channels/{channelId}/variables",
+      "operation": "setChannelVars",
+      "response": "void",
+      "since": [
+        "20.20.0",
+        "22.10.0",
+        "23.4.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "channelId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "deviceStates",
+      "method": "GET",
+      "path": "/deviceStates",
+      "operation": "list",
+      "response": "List[DeviceState]",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": []
+    },
+    {
+      "resource": "deviceStates",
+      "method": "DELETE",
+      "path": "/deviceStates/{deviceName}",
+      "operation": "delete",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "deviceName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "deviceStates",
+      "method": "GET",
+      "path": "/deviceStates/{deviceName}",
+      "operation": "get",
+      "response": "DeviceState",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "deviceName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "deviceStates",
+      "method": "PUT",
+      "path": "/deviceStates/{deviceName}",
+      "operation": "update",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "deviceName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "deviceState",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "endpoints",
+      "method": "GET",
+      "path": "/endpoints",
+      "operation": "list",
+      "response": "List[Endpoint]",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": []
+    },
+    {
+      "resource": "endpoints",
+      "method": "POST",
+      "path": "/endpoints/refer",
+      "operation": "refer",
+      "response": "void",
+      "since": [
+        "18.20.0",
+        "20.5.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "to",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "from",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "refer_to",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "to_self",
+          "location": "query",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "endpoints",
+      "method": "PUT",
+      "path": "/endpoints/sendMessage",
+      "operation": "sendMessage",
+      "response": "void",
+      "since": [
+        "13.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "to",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "from",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "body",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "endpoints",
+      "method": "GET",
+      "path": "/endpoints/{tech}",
+      "operation": "listByTech",
+      "response": "List[Endpoint]",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "tech",
+          "location": "path",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "endpoints",
+      "method": "GET",
+      "path": "/endpoints/{tech}/{resource}",
+      "operation": "get",
+      "response": "Endpoint",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "tech",
+          "location": "path",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "resource",
+          "location": "path",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "endpoints",
+      "method": "POST",
+      "path": "/endpoints/{tech}/{resource}/refer",
+      "operation": "referToEndpoint",
+      "response": "void",
+      "since": [
+        "18.20.0",
+        "20.5.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "tech",
+          "location": "path",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "resource",
+          "location": "path",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "parameters": [
+        {
+          "name": "from",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "refer_to",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "to_self",
+          "location": "query",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "endpoints",
+      "method": "PUT",
+      "path": "/endpoints/{tech}/{resource}/sendMessage",
+      "operation": "sendMessageToEndpoint",
+      "response": "void",
+      "since": [
+        "13.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "tech",
+          "location": "path",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "resource",
+          "location": "path",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "parameters": [
+        {
+          "name": "from",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "body",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "events",
+      "method": "GET",
+      "path": "/events",
+      "operation": "eventWebsocket",
+      "response": "Message",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "app",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "subscribeAll",
+          "location": "query",
+          "type": "boolean",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "events",
+      "method": "POST",
+      "path": "/events/claim",
+      "operation": "claimChannel",
+      "response": "void",
+      "since": [
+        "20.17.0",
+        "22.7.0",
+        "23.1.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "channelId",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "application",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "events",
+      "method": "POST",
+      "path": "/events/user/{eventName}",
+      "operation": "userEvent",
+      "response": "void",
+      "since": [
+        "12.3.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "eventName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "application",
+          "location": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "source",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "variables",
+          "location": "body",
+          "type": "containers",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "mailboxes",
+      "method": "GET",
+      "path": "/mailboxes",
+      "operation": "list",
+      "response": "List[Mailbox]",
+      "since": [
+        "12.1.0"
+      ],
+      "path_parameters": [],
+      "parameters": []
+    },
+    {
+      "resource": "mailboxes",
+      "method": "DELETE",
+      "path": "/mailboxes/{mailboxName}",
+      "operation": "delete",
+      "response": "void",
+      "since": [
+        "12.1.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "mailboxName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "mailboxes",
+      "method": "GET",
+      "path": "/mailboxes/{mailboxName}",
+      "operation": "get",
+      "response": "Mailbox",
+      "since": [
+        "12.1.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "mailboxName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "mailboxes",
+      "method": "PUT",
+      "path": "/mailboxes/{mailboxName}",
+      "operation": "update",
+      "response": "void",
+      "since": [
+        "12.1.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "mailboxName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "oldMessages",
+          "location": "query",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "newMessages",
+          "location": "query",
+          "type": "int",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "playbacks",
+      "method": "DELETE",
+      "path": "/playbacks/{playbackId}",
+      "operation": "stop",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "playbackId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "playbacks",
+      "method": "GET",
+      "path": "/playbacks/{playbackId}",
+      "operation": "get",
+      "response": "Playback",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "playbackId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "playbacks",
+      "method": "POST",
+      "path": "/playbacks/{playbackId}/control",
+      "operation": "control",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "playbackId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "operation",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "recordings",
+      "method": "DELETE",
+      "path": "/recordings/live/{recordingName}",
+      "operation": "cancel",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "recordings",
+      "method": "GET",
+      "path": "/recordings/live/{recordingName}",
+      "operation": "getLive",
+      "response": "LiveRecording",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "recordings",
+      "method": "DELETE",
+      "path": "/recordings/live/{recordingName}/mute",
+      "operation": "unmute",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "recordings",
+      "method": "POST",
+      "path": "/recordings/live/{recordingName}/mute",
+      "operation": "mute",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "recordings",
+      "method": "DELETE",
+      "path": "/recordings/live/{recordingName}/pause",
+      "operation": "unpause",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "recordings",
+      "method": "POST",
+      "path": "/recordings/live/{recordingName}/pause",
+      "operation": "pause",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "recordings",
+      "method": "POST",
+      "path": "/recordings/live/{recordingName}/stop",
+      "operation": "stop",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "recordings",
+      "method": "GET",
+      "path": "/recordings/stored",
+      "operation": "listStored",
+      "response": "List[StoredRecording]",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": []
+    },
+    {
+      "resource": "recordings",
+      "method": "DELETE",
+      "path": "/recordings/stored/{recordingName}",
+      "operation": "deleteStored",
+      "response": "void",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "recordings",
+      "method": "GET",
+      "path": "/recordings/stored/{recordingName}",
+      "operation": "getStored",
+      "response": "StoredRecording",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "recordings",
+      "method": "POST",
+      "path": "/recordings/stored/{recordingName}/copy",
+      "operation": "copyStored",
+      "response": "StoredRecording",
+      "since": [
+        "12.5.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "destinationRecordingName",
+          "location": "query",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "resource": "recordings",
+      "method": "GET",
+      "path": "/recordings/stored/{recordingName}/file",
+      "operation": "getStoredFile",
+      "response": "binary",
+      "since": [
+        "14.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "recordingName",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "resource": "sounds",
+      "method": "GET",
+      "path": "/sounds",
+      "operation": "list",
+      "response": "List[Sound]",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [],
+      "parameters": [
+        {
+          "name": "lang",
+          "location": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "format",
+          "location": "query",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "resource": "sounds",
+      "method": "GET",
+      "path": "/sounds/{soundId}",
+      "operation": "get",
+      "response": "Sound",
+      "since": [
+        "12.0.0"
+      ],
+      "path_parameters": [
+        {
+          "name": "soundId",
+          "location": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "parameters": []
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+name: ARI contract
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Check classified routes and parameters
+        run: go run ./tools/ari-contract
+      - name: Test drift detection
+        run: go test ./tools/ari-contract

@@ -25,6 +25,8 @@ _testmain.go
 *.prof
 
 *.swp
+__pycache__/
+*.pyc
 
 /vendor/*
 /dist/
