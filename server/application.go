@@ -22,6 +22,14 @@ func (s *Server) applicationData(ctx context.Context, reply string, req *proxy.R
 	})
 }
 
+func (s *Server) eventClaimChannel(ctx context.Context, reply string, req *proxy.Request) {
+	if req.Key == nil || req.EventClaim == nil {
+		s.sendError(reply, errors.New("application key and EventClaim are mandatory"))
+		return
+	}
+	s.sendError(reply, s.ari.Application().ClaimChannel(req.Key, req.EventClaim.ChannelID))
+}
+
 func (s *Server) applicationList(ctx context.Context, reply string, req *proxy.Request) {
 	list, err := s.ari.Application().List(nil)
 	if err != nil {
@@ -86,4 +94,13 @@ func (s *Server) applicationSubscribe(ctx context.Context, reply string, req *pr
 
 func (s *Server) applicationUnsubscribe(ctx context.Context, reply string, req *proxy.Request) {
 	s.sendError(reply, s.ari.Application().Unsubscribe(req.Key, req.ApplicationSubscribe.EventSource))
+}
+
+func (s *Server) applicationFilterEvents(ctx context.Context, reply string, req *proxy.Request) {
+	data, err := s.ari.Application().FilterEvents(req.Key, req.ApplicationEventFilter)
+	if err != nil {
+		s.sendError(reply, err)
+		return
+	}
+	s.publish(reply, &proxy.Response{Data: &proxy.EntityData{Application: data}})
 }

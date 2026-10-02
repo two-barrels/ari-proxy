@@ -1,22 +1,63 @@
 package client
 
 import (
+	"errors"
 	"github.com/two-barrels/ari-proxy/v6/proxy"
 	"github.com/two-barrels/ari/v6"
 	"github.com/two-barrels/ari/v6/rid"
 )
 
+func requireRouteTarget(key *ari.Key) error {
+	if key == nil || key.App == "" || key.Node == "" {
+		return errors.New("explicit route requires an application and target node")
+	}
+	return nil
+}
+
 type bridge struct {
 	c *Client
 }
 
+func (b *bridge) GetVariable(key *ari.Key, name string) (string, error) {
+	data, err := b.c.dataRequest(&proxy.Request{Kind: "BridgeVariableGet", Key: key,
+		BridgeVariable: &proxy.BridgeVariable{Name: name}})
+	if err != nil {
+		return "", err
+	}
+	return data.Variable, nil
+}
+
+func (b *bridge) SetVariable(key *ari.Key, name, value string, reportEvents *bool) error {
+	return b.c.commandRequest(&proxy.Request{Kind: "BridgeVariableSet", Key: key,
+		BridgeVariable: &proxy.BridgeVariable{Name: name, Value: value, ReportEvents: reportEvents}})
+}
+
+func (b *bridge) GetVariables(key *ari.Key, names ...string) (map[string]any, error) {
+	data, err := b.c.dataRequest(&proxy.Request{Kind: "BridgeVariablesGet", Key: key,
+		BridgeVariables: &proxy.BridgeVariables{Names: names}})
+	if err != nil {
+		return nil, err
+	}
+	return data.Variables, nil
+}
+
+func (b *bridge) SetVariables(key *ari.Key, values map[string]ari.BridgeVariableAssignment) error {
+	return b.c.commandRequest(&proxy.Request{Kind: "BridgeVariablesSet", Key: key,
+		BridgeVariables: &proxy.BridgeVariables{Values: values}})
+}
+
 func (b *bridge) Create(key *ari.Key, btype, name string) (*ari.BridgeHandle, error) {
+	return b.CreateWithOptions(key, ari.BridgeCreateOptions{Type: btype, Name: name})
+}
+
+func (b *bridge) CreateWithOptions(key *ari.Key, opts ari.BridgeCreateOptions) (*ari.BridgeHandle, error) {
 	k, err := b.c.createRequest(&proxy.Request{
 		Kind: "BridgeCreate",
 		Key:  key,
 		BridgeCreate: &proxy.BridgeCreate{
-			Type: btype,
-			Name: name,
+			Type:      opts.Type,
+			Name:      opts.Name,
+			Variables: opts.Variables,
 		},
 	})
 	if err != nil {
@@ -25,20 +66,51 @@ func (b *bridge) Create(key *ari.Key, btype, name string) (*ari.BridgeHandle, er
 	return ari.NewBridgeHandle(k, b, nil), nil
 }
 
+func (b *bridge) CreateWithoutID(reference *ari.Key, opts ari.BridgeCreateOptions) (*ari.BridgeHandle, error) {
+	if err := requireRouteTarget(reference); err != nil {
+		return nil, err
+	}
+	k, err := b.c.createRequest(&proxy.Request{
+		Kind: "BridgeCreateWithoutID", Key: reference,
+		BridgeCreate: &proxy.BridgeCreate{Type: opts.Type, Name: opts.Name, Variables: opts.Variables},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return ari.NewBridgeHandle(k, b, nil), nil
+}
+
+func (b *bridge) CreateOnCollection(reference *ari.Key, bridgeID string, opts ari.BridgeCreateOptions) (*ari.BridgeHandle, error) {
+	if err := requireRouteTarget(reference); err != nil {
+		return nil, err
+	}
+	k, err := b.c.createRequest(&proxy.Request{Kind: "BridgeCreateOnCollection", Key: reference,
+		BridgeCreate: &proxy.BridgeCreate{BridgeID: bridgeID, Type: opts.Type, Name: opts.Name, Variables: opts.Variables}})
+	if err != nil {
+		return nil, err
+	}
+	return ari.NewBridgeHandle(k, b, nil), nil
+}
+
 func (b *bridge) StageCreate(key *ari.Key, btype, name string) (*ari.BridgeHandle, error) {
+	return b.StageCreateWithOptions(key, ari.BridgeCreateOptions{Type: btype, Name: name})
+}
+
+func (b *bridge) StageCreateWithOptions(key *ari.Key, opts ari.BridgeCreateOptions) (*ari.BridgeHandle, error) {
 	k, err := b.c.createRequest(&proxy.Request{
 		Kind: "BridgeStageCreate",
 		Key:  key,
 		BridgeCreate: &proxy.BridgeCreate{
-			Type: btype,
-			Name: name,
+			Type:      opts.Type,
+			Name:      opts.Name,
+			Variables: opts.Variables,
 		},
 	})
 	if err != nil {
 		return nil, err
 	}
 	return ari.NewBridgeHandle(k, b, func(h *ari.BridgeHandle) error {
-		_, err := b.Create(k, btype, name)
+		_, err := b.CreateWithOptions(k, opts)
 		return err
 	}), nil
 }
@@ -86,10 +158,11 @@ func (b *bridge) AddChannelWithOptions(key *ari.Key, channelID string, options *
 		Kind: "BridgeAddChannel",
 		Key:  key,
 		BridgeAddChannel: &proxy.BridgeAddChannel{
-			Channel:    channelID,
-			AbsorbDTMF: options.AbsorbDTMF,
-			Mute:       options.Mute,
-			Role:       options.Role,
+			Channel:                     channelID,
+			AbsorbDTMF:                  options.AbsorbDTMF,
+			Mute:                        options.Mute,
+			Role:                        options.Role,
+			InhibitConnectedLineUpdates: options.InhibitConnectedLineUpdates,
 		},
 	})
 }
@@ -128,17 +201,18 @@ func (b *bridge) StopMOH(key *ari.Key) error {
 	})
 }
 
-func (b *bridge) Play(key *ari.Key, id string, uri string) (*ari.PlaybackHandle, error) {
+func (b *bridge) Play(key *ari.Key, id string, uri ...string) (*ari.PlaybackHandle, error) {
+	return b.PlayWithOptions(key, id, ari.BridgePlayOptions{Media: uri})
+}
+
+func (b *bridge) PlayWithOptions(key *ari.Key, id string, opts ari.BridgePlayOptions) (*ari.PlaybackHandle, error) {
 	if id == "" {
 		id = rid.New(rid.Playback)
 	}
 	k, err := b.c.createRequest(&proxy.Request{
-		Kind: "BridgePlay",
-		Key:  key,
-		BridgePlay: &proxy.BridgePlay{
-			MediaURI:   uri,
-			PlaybackID: id,
-		},
+		Kind:       "BridgePlay",
+		Key:        key,
+		BridgePlay: bridgePlayPayload(id, opts),
 	})
 	if err != nil {
 		return nil, err
@@ -146,26 +220,61 @@ func (b *bridge) Play(key *ari.Key, id string, uri string) (*ari.PlaybackHandle,
 	return ari.NewPlaybackHandle(k.New(ari.PlaybackKey, id), b.c.Playback(), nil), nil
 }
 
-func (b *bridge) StagePlay(key *ari.Key, id string, uri string) (*ari.PlaybackHandle, error) {
+func (b *bridge) PlayWithoutID(key *ari.Key, opts ari.BridgePlayOptions) (*ari.PlaybackHandle, error) {
+	if err := requireRouteTarget(key); err != nil {
+		return nil, err
+	}
+	k, err := b.c.createRequest(&proxy.Request{Kind: "BridgePlayWithoutID", Key: key, BridgePlay: bridgePlayPayload("", opts)})
+	if err != nil {
+		return nil, err
+	}
+	return ari.NewPlaybackHandle(k, b.c.Playback(), nil), nil
+}
+
+func (b *bridge) PlayOnCollection(key *ari.Key, playbackID string, opts ari.BridgePlayOptions) (*ari.PlaybackHandle, error) {
+	if err := requireRouteTarget(key); err != nil {
+		return nil, err
+	}
+	k, err := b.c.createRequest(&proxy.Request{Kind: "BridgePlayOnCollection", Key: key, BridgePlay: bridgePlayPayload(playbackID, opts)})
+	if err != nil {
+		return nil, err
+	}
+	return ari.NewPlaybackHandle(k, b.c.Playback(), nil), nil
+}
+
+func (b *bridge) StagePlay(key *ari.Key, id string, uri ...string) (*ari.PlaybackHandle, error) {
+	return b.StagePlayWithOptions(key, id, ari.BridgePlayOptions{Media: uri})
+}
+
+func (b *bridge) StagePlayWithOptions(key *ari.Key, id string, opts ari.BridgePlayOptions) (*ari.PlaybackHandle, error) {
 	if id == "" {
 		id = rid.New(rid.Playback)
 	}
 	k, err := b.c.getRequest(&proxy.Request{
-		Kind: "BridgeStagePlay",
-		Key:  key,
-		BridgePlay: &proxy.BridgePlay{
-			MediaURI:   uri,
-			PlaybackID: id,
-		},
+		Kind:       "BridgeStagePlay",
+		Key:        key,
+		BridgePlay: bridgePlayPayload(id, opts),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	return ari.NewPlaybackHandle(k.New(ari.PlaybackKey, id), b.c.Playback(), func(h *ari.PlaybackHandle) error {
-		_, err := b.Play(k.New(ari.BridgeKey, key.ID), id, uri)
+		_, err := b.PlayWithOptions(k.New(ari.BridgeKey, key.ID), id, opts)
 		return err
 	}), nil
+}
+
+func bridgePlayPayload(id string, opts ari.BridgePlayOptions) *proxy.BridgePlay {
+	media := opts.Media
+	p := &proxy.BridgePlay{PlaybackID: id, Options: &opts}
+	if len(media) > 0 {
+		p.MediaURI = media[0]
+	}
+	if len(media) > 1 {
+		p.MediaURIs = media
+	}
+	return p
 }
 
 func (b *bridge) Record(key *ari.Key, name string, opts *ari.RecordingOptions) (*ari.LiveRecordingHandle, error) {

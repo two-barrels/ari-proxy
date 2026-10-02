@@ -40,6 +40,15 @@ func TestAll(t *testing.T) {
 	}
 }
 
+func TestMatchingZeroMaxAgeIncludesLiveMembers(t *testing.T) {
+	c := New()
+	c.Update("node-1", "demo")
+	members := c.Matching("", "demo", 0)
+	if len(members) != 1 || members[0].ID != "node-1" {
+		t.Fatalf("matching members = %+v", members)
+	}
+}
+
 func TestApp(t *testing.T) {
 	c := New()
 	c.Update("A1", "TestApp")

@@ -13,6 +13,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/exp/slog"
 )
 
 // Log is the package logger
@@ -41,8 +42,6 @@ var RootCmd = &cobra.Command{
 			handler = log15.LvlFilterHandler(log15.LvlInfo, handler)
 		}
 		Log.SetHandler(handler)
-
-		native.Logger.SetHandler(handler)
 
 		return runServer(ctx, Log)
 	},
@@ -111,11 +110,24 @@ func runServer(ctx context.Context, log log15.Logger) error {
 	srv.Log = log
 
 	log.Info("starting ari-proxy server", "version", version)
-	return srv.Listen(ctx, &native.Options{
+	return srv.Listen(ctx, serverARIOptions(), messagebusURL)
+}
+
+func serverARIOptions() *native.Options {
+	return &native.Options{
 		Application:  viper.GetString("ari.application"),
+		SubscribeAll: viper.GetBool("ari.subscribe_all"),
 		Username:     viper.GetString("ari.username"),
 		Password:     viper.GetString("ari.password"),
 		URL:          viper.GetString("ari.http_url"),
 		WebsocketURL: viper.GetString("ari.websocket_url"),
-	}, messagebusURL)
+		Logger:       slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: proxyLogLevel()})),
+	}
+}
+
+func proxyLogLevel() slog.Level {
+	if viper.GetBool("verbose") {
+		return slog.LevelDebug
+	}
+	return slog.LevelInfo
 }

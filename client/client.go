@@ -467,7 +467,7 @@ func (c *Client) StoredRecording() ari.StoredRecording {
 
 // TextMessage is the text message accessor
 func (c *Client) TextMessage() ari.TextMessage {
-	return nil
+	return &textMessage{c: c}
 }
 
 func (c *Client) commandRequest(req *proxy.Request) error {
@@ -543,7 +543,7 @@ func (c *Client) makeRequest(class string, req *proxy.Request) (*proxy.Response,
 		return c.makeBroadcastRequestReturnFirstGoodResponse(class, req)
 	}
 
-	c.log.Error("request", "class", class, "req", req, "subject", c.subject(class, req))
+	c.log.Debug("request", "class", class, "req", req, "subject", c.subject(class, req))
 	return c.mbus.Request(c.subject(class, req), req)
 }
 

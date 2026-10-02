@@ -26,14 +26,30 @@ func (a *asterisk) Modules() ari.Modules {
 }
 
 func (a *asterisk) Info(key *ari.Key) (*ari.AsteriskInfo, error) {
+	return a.InfoWithOptions(key, ari.AsteriskInfoOptions{})
+}
+
+func (a *asterisk) InfoWithOptions(key *ari.Key, opts ari.AsteriskInfoOptions) (*ari.AsteriskInfo, error) {
 	resp, err := a.c.dataRequest(&proxy.Request{
-		Kind: "AsteriskInfo",
-		Key:  key,
+		Kind:                "AsteriskInfo",
+		Key:                 key,
+		AsteriskInfoOptions: &opts,
 	})
 	if err != nil {
 		return nil, err
 	}
 	return resp.Asterisk, nil
+}
+
+func (a *asterisk) Ping(key *ari.Key) (*ari.AsteriskPing, error) {
+	data, err := a.c.dataRequest(&proxy.Request{Kind: "AsteriskPing", Key: key})
+	if err != nil {
+		return nil, err
+	}
+	if data.AsteriskPing == nil {
+		return nil, ErrNil
+	}
+	return data.AsteriskPing, nil
 }
 
 func (a *asterisk) Variables() ari.AsteriskVariables {

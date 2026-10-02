@@ -1,6 +1,8 @@
 package client
 
 import (
+	"errors"
+
 	"github.com/two-barrels/ari-proxy/v6/proxy"
 	"github.com/two-barrels/ari/v6"
 )
@@ -47,4 +49,18 @@ func (e *endpoint) ListByTech(tech string, filter *ari.Key) ([]*ari.Key, error) 
 			Tech: tech,
 		},
 	})
+}
+
+func (e *endpoint) Refer(referenceKey *ari.Key, opts ari.EndpointReferOptions) error {
+	if referenceKey == nil || referenceKey.App == "" || referenceKey.Node == "" {
+		return errors.New("endpoint REFER requires an application and target node")
+	}
+	return e.c.commandRequest(&proxy.Request{Kind: "EndpointRefer", Key: referenceKey, EndpointRefer: &opts})
+}
+
+func (e *endpoint) ReferToEndpoint(key *ari.Key, opts ari.EndpointReferOptions) error {
+	if key == nil || key.App == "" || key.Node == "" {
+		return errors.New("endpoint REFER requires an application and target node")
+	}
+	return e.c.commandRequest(&proxy.Request{Kind: "EndpointReferToEndpoint", Key: key, EndpointRefer: &opts})
 }
