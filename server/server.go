@@ -483,6 +483,8 @@ func (s *Server) dispatchRequest(ctx context.Context, reply string, req *proxy.R
 		f = s.channelList
 	case "ChannelMOH":
 		f = s.channelMOH
+	case "ChannelMove":
+		f = s.channelMove
 	case "ChannelMute":
 		f = s.channelMute
 	case "ChannelOriginate":
