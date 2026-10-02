@@ -2,7 +2,24 @@
 
 # Coordinated v6 release checklist
 
-## Current candidate status — 2026-10-02
+## Current candidate: v6.0.0-rc.2 — 2026-10-02
+
+The rc.2 pair includes Apache redistribution modification/creation notices,
+retains original attribution, and keeps notice files in standalone snapshots.
+ARI rc.2 is published first; proxy rc.2 requires that exact version without
+replacements and pins contract source evidence to it. rc.1 tags remain immutable.
+Use this final distribution gate after both rc.2 tags are published:
+
+```sh
+GOWORK=off go run ./tools/release-check --ari-version v6.0.0-rc.2 --proxy-version v6.0.0-rc.2
+```
+
+Library/proxy APIs and runtime behavior are unchanged from rc.1. The accepted
+live Asterisk 22.10.1 evidence and deferred PBX/broker scope still apply. Binary
+and container publishing remain future work. The phone-apps v6ari branch uses
+the native candidate; dev retains v5.
+
+## Historical rc.1 candidate status — 2026-10-02
 
 This section supersedes the historical preparation notes below. Both PR #1s
 are merged into permanent `v6` branches. Existing `main` and v5 tags are intact.

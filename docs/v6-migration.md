@@ -5,7 +5,7 @@
 Status: release candidate, 2026-10-02. The current checkout declares
 `github.com/two-barrels/ari-proxy/v6` and imports that path throughout source,
 tests, and examples. It exposes `ari/v6` types and requires its published
-`v6.0.0-rc.1` tag without a sibling replacement.
+`v6.0.0-rc.2` tag without a sibling replacement.
 Do not publish the accumulated API changes as another v5 patch.
 
 ## Module transition
@@ -21,7 +21,7 @@ the expanded interfaces described in the [ARI migration guide](../../ari/docs/v6
 Build the server, application clients, and any shared adapters together. A
 source-level import update does not establish mixed v5/v6 wire compatibility.
 
-For candidate evaluation, use both modules at `v6.0.0-rc.1` in a separate
+For candidate evaluation, use both modules at `v6.0.0-rc.2` in a separate
 application migration branch. Existing v5 consumers and `main` remain intact.
 The published-tag checker verifies real downloads without sibling repositories;
 source snapshot checks alone do not certify a published tag.

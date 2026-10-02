@@ -31,7 +31,7 @@ jobs:
         with:
           repository: two-barrels/ari
           # Source evidence for the contract audit; builds resolve go.mod's tag.
-          ref: v6.0.0-rc.1
+          ref: v6.0.0-rc.2
           path: ari
           persist-credentials: false
       - uses: actions/setup-go@v7

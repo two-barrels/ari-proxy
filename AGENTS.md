@@ -4,13 +4,17 @@
 
 ## Release candidate status — 2026-10-02 (supersedes historical status below)
 
+Current candidate: `v6.0.0-rc.2`, adding attribution notices and archive/audit
+tooling. It requires ARI `v6.0.0-rc.2` with no local replacement; contract CI
+also reads that tag. Preserve the existing rc.1 tags and v5 main.
+
 The v6 branch now carries per-file two-barrels modification/creation notices
 relative to the pinned upstream commit in NOTICE. Run `go run ./tools/file-notices`
 to check additions/changes; use `--apply` to add notices. Keep original attribution
 and LICENSE intact. go.sum uses a companion .notice; CSV/JSON metadata notices
 keep the coverage contract parseable. Snapshot archives now include LICENSE,
-NOTICE and .notice files, with regression coverage. These changes postdate rc.1:
-the next distribution must use a new candidate, never a moved existing tag.
+NOTICE and .notice files, with regression coverage. These changes are included
+in rc.2, never a moved rc.1 tag.
 
 PR #1 is merged into permanent `v6`; existing `main` and v5 tags remain intact.
 ARI `v6.0.0-rc.1` is published at `05e769a972ff5b11bb6db96195135cfe52f6db75`.

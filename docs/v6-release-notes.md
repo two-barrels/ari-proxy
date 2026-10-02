@@ -1,9 +1,19 @@
 <!-- Created by two-barrels in 2026 for ARI v6 modernization. SPDX-License-Identifier: Apache-2.0 -->
 
-# ARI proxy v6.0.0-rc.1 release notes
+# ARI proxy v6.0.0-rc.2 release notes
 
 Module: `github.com/two-barrels/ari-proxy/v6`. This is a prerelease Go module;
 stable v6 and binary/container publication remain future work.
+
+## Changes since rc.1
+
+- Added prominent two-barrels modification/creation notices and retained upstream
+  attribution; added NOTICE and checksum companion notices.
+- CI checks per-file notices against a pinned upstream baseline.
+- Standalone snapshot archives retain LICENSE, NOTICE and companion notices,
+  with regression coverage.
+- Updated the native dependency and contract source audit to ARI rc.2.
+- Proxy APIs and runtime behavior are unchanged from rc.1.
 
 ## Changes
 
@@ -27,7 +37,7 @@ stable v6 and binary/container publication remain future work.
 
 Review [v6 migration](v6-migration.md) before updating imports. The public API
 uses ARI v6 types, requiring a proxy major-version migration. The proxy requires
-published `github.com/two-barrels/ari/v6 v6.0.0-rc.1`; no local replacement remains.
+published `github.com/two-barrels/ari/v6 v6.0.0-rc.2`; no local replacement remains.
 Normal Go CI resolves that dependency without a sibling checkout. Contract CI
 checks out the same ARI tag solely to inspect source evidence.
 
@@ -50,7 +60,7 @@ context, timeout, throughput, and multi-node error audits remain open.
 
 ## Artifact publication
 
-ARI v6.0.0-rc.1 was published first; proxy v6.0.0-rc.1 uses that exact tag. Legacy
+ARI v6.0.0-rc.2 was published first; proxy v6.0.0-rc.2 uses that exact tag. Legacy
 image/GoReleaser jobs are restricted to CyCore upstream because their tooling
 and registry targets require separate two-barrels preparation. Source CI does
 not establish binary/container artifact readiness.
